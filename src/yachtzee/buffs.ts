@@ -67,6 +67,13 @@ export function yachtzeePotionProfits(potion: Potion, yachtzeeTurns: number): nu
   return yachtzeeValue + embezzlerValue + barfValue - potion.price(true);
 }
 
+const doublingValue = (potion: Potion, yachtzeeTurns: number) =>
+  Math.min(
+    potion.price(false),
+    yachtzeePotionProfits(potion.doubleDuration(), yachtzeeTurns) -
+      yachtzeePotionProfits(potion, yachtzeeTurns)
+  );
+
 export function yachtzeePotionSetup(yachtzeeTurns: number, simOnly?: boolean): number {
   let totalProfits = 0;
   const PYECOffset = pyecAvailable() ? 5 : 0;
@@ -86,8 +93,7 @@ export function yachtzeePotionSetup(yachtzeeTurns: number, simOnly?: boolean): n
       )
       .sort(
         (left, right) =>
-          yachtzeePotionProfits(right.doubleDuration(), yachtzeeTurns) -
-          yachtzeePotionProfits(left.doubleDuration(), yachtzeeTurns)
+          doublingValue(left, yachtzeeTurns) - yachtzeePotionProfits(right, yachtzeeTurns)
       );
     const bestPotion = doublingPotions.length > 0 ? doublingPotions[0].doubleDuration() : undefined;
     if (bestPotion) {
