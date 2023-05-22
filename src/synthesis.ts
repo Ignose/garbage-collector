@@ -43,7 +43,6 @@ export default function synthesize(casts: number, effect: Effect): void {
   for (const itemA of shuffledWhitelist) {
     if (availableAmount(itemA) <= 1) continue;
     for (const itemB of buyable) {
-      if (availableAmount(itemB) === 0) continue;
       if (sweetSynthesisResult(itemA, itemB) !== effect) continue;
       const possibleCasts = availableAmount(itemA);
       const spleen = Math.max(spleenLimit() - mySpleenUse(), 0);
