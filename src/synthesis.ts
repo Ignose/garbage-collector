@@ -50,8 +50,8 @@ export default function synthesize(casts: number, effect: Effect): void {
       retrieveItem(itemA, castsToDo);
       retrieveItem(itemB, castsToDo);
       if (sweetSynthesis(castsToDo, itemA, itemB)) casts -= castsToDo;
+      if (casts <= 0) return;
     }
-    if (casts <= 0) return;
   }
 
   sweetSynthesis(clamp(casts, 0, spleenLimit() - mySpleenUse()), effect);
