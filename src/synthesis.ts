@@ -38,13 +38,12 @@ const buyable = $items
   .slice(0, 50);
 
 export default function synthesize(casts: number, effect: Effect): void {
-  if (casts <= 0) return;
   const shuffledWhitelist = shuffle(allowList);
   for (const itemA of shuffledWhitelist) {
     if (availableAmount(itemA) <= 1) continue;
     for (const itemB of buyable) {
       if (sweetSynthesisResult(itemA, itemB) !== effect) continue;
-      const possibleCasts = availableAmount(itemA);
+      const possibleCasts = availableAmount(itemA) - 1;
       const spleen = Math.max(spleenLimit() - mySpleenUse(), 0);
       const castsToDo = Math.min(possibleCasts, casts, spleen);
       if (castsToDo === 0) continue;
@@ -52,6 +51,7 @@ export default function synthesize(casts: number, effect: Effect): void {
       retrieveItem(itemB, castsToDo);
       if (sweetSynthesis(castsToDo, itemA, itemB)) casts -= castsToDo;
     }
+    if (casts <= 0) return;
   }
 
   sweetSynthesis(clamp(casts, 0, spleenLimit() - mySpleenUse()), effect);
