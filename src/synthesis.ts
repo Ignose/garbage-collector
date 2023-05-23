@@ -31,13 +31,12 @@ const blockList = new Set([
   $item`vitachoconutriment capsule`,
 ]);
 
-const buyable = $items
-  .all()
-  .filter((i) => i.tradeable && i.candyType === "complex" && !blockList.has(i))
-  .sort((a, b) => mallPrice(a) - mallPrice(b))
-  .slice(0, 50);
-
 export default function synthesize(casts: number, effect: Effect): void {
+  const buyable = $items
+    .all()
+    .filter((i) => i.tradeable && i.candyType === "complex" && !blockList.has(i))
+    .sort((a, b) => mallPrice(a) - mallPrice(b))
+    .slice(0, 50);
   const shuffledWhitelist = shuffle(allowList);
   for (const itemA of shuffledWhitelist) {
     if (availableAmount(itemA) <= 1) continue;
