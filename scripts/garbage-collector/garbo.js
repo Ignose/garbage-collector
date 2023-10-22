@@ -35889,7 +35889,7 @@ function candyRichBlockValue() {
   return outfitCandyTotal + bowlValue + prunetsValue;
 }
 function shouldAcquireCandyMap() {
-  return !(0, import_kolmafia94.holiday)().includes("Halloween") && candyRichBlockValue() < (0, import_kolmafia94.mallPrice)($item(_templateObject6102 || (_templateObject6102 = _taggedTemplateLiteral85(["map to a candy-rich block"]))));
+  return !(0, import_kolmafia94.holiday)().includes("Halloween") && candyRichBlockValue() > (0, import_kolmafia94.mallPrice)($item(_templateObject6102 || (_templateObject6102 = _taggedTemplateLiteral85(["map to a candy-rich block"]))));
 }
 function useCandyMapTask() {
   return {
