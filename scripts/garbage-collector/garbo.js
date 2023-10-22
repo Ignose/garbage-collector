@@ -8100,9 +8100,9 @@ function findFairyMultiplier2(familiar10) {
   return Math.pow(Math.sqrt(itemBonus + 55 / 4 + 3) - Math.sqrt(55) / 2, 2);
 }
 function getTodaysHolidayWanderers2() {
-  return flat2((0, import_kolmafia52.holiday)().split("/").map(function(holiday5) {
+  return flat2((0, import_kolmafia52.holiday)().split("/").map(function(holiday6) {
     var _holidayWanderers$get;
-    return (_holidayWanderers$get = holidayWanderers2.get(holiday5)) !== null && _holidayWanderers$get !== void 0 ? _holidayWanderers$get : [];
+    return (_holidayWanderers$get = holidayWanderers2.get(holiday6)) !== null && _holidayWanderers$get !== void 0 ? _holidayWanderers$get : [];
   }));
 }
 function canVisitUrl2() {
@@ -28029,9 +28029,9 @@ function findFairyMultiplier(familiar10) {
 }
 var holidayWanderers = /* @__PURE__ */ new Map([["El Dia De Los Muertos Borrachos", $monsters(_templateObject9 || (_templateObject9 = _taggedTemplateLiteral(["Novia Cad\xE1ver, Novio Cad\xE1ver, Padre Cad\xE1ver, Persona Inocente Cad\xE1ver"])))], ["Feast of Boris", $monsters(_templateObject10 || (_templateObject10 = _taggedTemplateLiteral(["Candied Yam Golem, Malevolent Tofurkey, Possessed Can of Cranberry Sauce, Stuffing Golem"])))], ["Talk Like a Pirate Day", $monsters(_templateObject11 || (_templateObject11 = _taggedTemplateLiteral(["ambulatory pirate, migratory pirate, peripatetic pirate"])))]]);
 function getTodaysHolidayWanderers() {
-  return flat((0, import_kolmafia5.holiday)().split("/").map(function(holiday5) {
+  return flat((0, import_kolmafia5.holiday)().split("/").map(function(holiday6) {
     var _holidayWanderers$get;
-    return (_holidayWanderers$get = holidayWanderers.get(holiday5)) !== null && _holidayWanderers$get !== void 0 ? _holidayWanderers$get : [];
+    return (_holidayWanderers$get = holidayWanderers.get(holiday6)) !== null && _holidayWanderers$get !== void 0 ? _holidayWanderers$get : [];
   }));
 }
 function canVisitUrl() {
@@ -48120,19 +48120,20 @@ function getTreatOutfit() {
     });
   });
   if (!availableOutfits.length) {
-    (0, import_kolmafia136.print)("You don't seem to actually have any outfits available, my friend!");
+    (0, import_kolmafia136.print)("You don't seem to actually have any trick-or-treating outfits available, my friend!");
   }
   return maxBy(availableOutfits, treatValue);
 }
 function treatOutfit() {
   var outfit4 = new Outfit();
-  var pieces5 = (0, import_kolmafia136.outfitPieces)(getTreatOutfit());
+  var bestTreatOutfit = getTreatOutfit();
+  var pieces5 = (0, import_kolmafia136.outfitPieces)(bestTreatOutfit);
   var _iterator = _createForOfIteratorHelper41(pieces5), _step;
   try {
     for (_iterator.s(); !(_step = _iterator.n()).done; ) {
       var piece = _step.value;
       if (!outfit4.equip(piece)) {
-        (0, import_kolmafia136.print)("Could not equip all pieces of treat outfit: aborted on ".concat(piece));
+        (0, import_kolmafia136.print)("Could not equip all pieces of trick-or-treating outfit ".concat(bestTreatOutfit, ": aborted on ").concat(piece));
       }
     }
   } catch (err) {
@@ -48152,7 +48153,7 @@ function candyRichBlockValue() {
   return outfitCandyTotal + bowlValue + prunetsValue;
 }
 function shouldAcquireCandyMap() {
-  return candyRichBlockValue() < (0, import_kolmafia136.mallPrice)($item(_templateObject6138 || (_templateObject6138 = _taggedTemplateLiteral121(["map to a candy-rich block"]))));
+  return !(0, import_kolmafia136.holiday)().includes("Halloween") && candyRichBlockValue() < (0, import_kolmafia136.mallPrice)($item(_templateObject6138 || (_templateObject6138 = _taggedTemplateLiteral121(["map to a candy-rich block"]))));
 }
 function useCandyMapTask() {
   return {
@@ -48164,8 +48165,12 @@ function useCandyMapTask() {
       return get("_mapToACandyRichBlockUsed");
     },
     do: function() {
-      acquire(1, $item(_templateObject7118 || (_templateObject7118 = _taggedTemplateLiteral121(["map to a candy-rich block"]))), candyRichBlockValue() - 1);
-      (0, import_kolmafia136.use)($item(_templateObject8101 || (_templateObject8101 = _taggedTemplateLiteral121(["map to a candy-rich block"]))));
+      if (acquire(1, $item(_templateObject7118 || (_templateObject7118 = _taggedTemplateLiteral121(["map to a candy-rich block"]))), candyRichBlockValue() - 1, false)) {
+        (0, import_kolmafia136.use)($item(_templateObject8101 || (_templateObject8101 = _taggedTemplateLiteral121(["map to a candy-rich block"]))));
+      }
+    },
+    limit: {
+      skip: 1
     },
     spendsTurn: false
   };
@@ -48174,7 +48179,7 @@ function doCandyTreat() {
   return {
     name: "Treat",
     completed: function() {
-      return get("_mapToACandyRichBlockUsed");
+      return !get("_mapToACandyRichBlockUsed") || (0, import_kolmafia136.holiday)().includes("Halloween");
     },
     outfit: treatOutfit,
     do: function() {
@@ -48196,11 +48201,14 @@ function doCandyTreat() {
         _iterator2.f();
       }
     },
+    limit: {
+      skip: 1
+    },
     spendsTurn: false,
     combat: new GarboStrategy(Macro3.abort())
   };
 }
-function freeCandyTasks() {
+function candyMapTasks() {
   return [useCandyMapTask(), doCandyTreat()];
 }
 
@@ -56988,7 +56996,7 @@ var DailyItemTasks = [{
     1500: 3
   },
   spendsTurn: false
-}].concat(_toConsumableArray65(augustSummonTasks()), _toConsumableArray65(freeCandyTasks()));
+}].concat(_toConsumableArray65(augustSummonTasks()), _toConsumableArray65(candyMapTasks()));
 var DailyItemsQuest = {
   name: "Daily Items",
   tasks: [].concat(_toConsumableArray65(SummonTasks), _toConsumableArray65(DailyItemTasks))
