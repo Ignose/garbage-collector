@@ -30703,7 +30703,7 @@ function checkGithubVersion() {
     var releaseSHA = (_gitBranches$find = gitBranches.find(function(branchInfo) {
       return branchInfo.name === "release";
     })) === null || _gitBranches$find === void 0 || (_gitBranches$find = _gitBranches$find.commit) === null || _gitBranches$find === void 0 ? void 0 : _gitBranches$find.sha;
-    (0, import_kolmafia81.print)("Local Version: ".concat(localSHA, " (built from ").concat("main", "@").concat("38c9eee0cae381013290c1ebfe87d435ed3ddcfb", ")"));
+    (0, import_kolmafia81.print)("Local Version: ".concat(localSHA, " (built from ").concat("main", "@").concat("82c572f138e01449456492d02b6b31be1e815d2a", ")"));
     if (releaseSHA === localSHA) {
       (0, import_kolmafia81.print)("Garbo is up to date!", HIGHLIGHT);
     } else if (releaseSHA === void 0) {
