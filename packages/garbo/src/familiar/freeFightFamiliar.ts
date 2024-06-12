@@ -2,7 +2,10 @@ import {
   Familiar,
   familiarWeight,
   inebrietyLimit,
+  itemDropModifier,
+  itemDropsArray,
   Location,
+  Monster,
   myInebriety,
 } from "kolmafia";
 import {
@@ -21,6 +24,28 @@ import getDropFamiliars from "./dropFamiliars";
 import getExperienceFamiliars from "./experienceFamiliars";
 import { GeneralFamiliar, timeToMeatify } from "./lib";
 import { meatFamiliar } from "./meatFamiliar";
+import { globalOptions } from "../config";
+
+function isGoodMeatDropper(target: Monster): boolean {
+  const meatDrop = (target.minMeat + target.maxMeat) / 2;
+
+  const itemDrop = determineItemDrops(target);
+
+  return itemDrop / 4 < meatDrop; // This is more or less arbitrary, but if the item list is worth four times the meat, one can assume we're choosing a monster for it's drops, not it's meat.
+}
+
+function determineItemDrops(target: Monster): number {
+  const totalValue = itemDropsArray(target).reduce((acc, drop) => {
+    const value =
+      garboValue(drop.drop) *
+      clamp(drop.rate * (1 + itemDropModifier() / 100), 0, 1);
+    return acc + value;
+  }, 0);
+
+  const itemDrop = totalValue / itemDropsArray(target).length;
+
+  return itemDrop;
+}
 
 type MenuOptions = Partial<{
   canChooseMacro: boolean;
@@ -65,6 +90,17 @@ export function menu(options: MenuOptions = {}): GeneralFamiliar[] {
           (Math.max(familiarWeight($familiar`Grey Goose`) - 5), 0) ** 4,
         leprechaunMultiplier: 0,
         limit: "experience",
+      });
+    }
+    if (
+      !isGoodMeatDropper(globalOptions.target) &&
+      globalOptions.target.attributes.includes("FREE")
+    ) {
+      familiarMenu.push({
+        familiar: $familiar`Grey Goose`,
+        expectedValue: determineItemDrops(globalOptions.target) * 2,
+        leprechaunMultiplier: 0,
+        limit: "special",
       });
     }
 

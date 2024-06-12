@@ -694,6 +694,11 @@ export class Macro extends StrictMacro {
           Macro.trySkill($skill`Wink at`),
         )
         .externalIf(
+          myFamiliar() === $familiar`Grey Goose` &&
+            globalOptions.target !== $monster`Knob Goblin Embezzler`,
+          Macro.trySkill($skill`Emit Matter Duplicating Drones`),
+        )
+        .externalIf(
           myFamiliar() === $familiar`Obtuse Angel`,
           Macro.trySkill($skill`Fire a badly romantic arrow`),
         )
