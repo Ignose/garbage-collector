@@ -103,6 +103,7 @@ import { acquire } from "./acquire";
 import { globalOptions } from "./config";
 import { garboAverageValue, garboValue } from "./garboValue";
 import { Outfit, OutfitSpec } from "grimoire-kolmafia";
+import { targetFamiliarBonus } from "./familiar/lib";
 
 export const eventLog: {
   initialCopyTargetsFought: number;
@@ -1135,4 +1136,9 @@ export const valueDrops = (monster: Monster) =>
   sum(itemDropsArray(monster), ({ drop, rate, type }) =>
     !["c", "0", "p", "a"].includes(type) ? (garboValue(drop) * rate) / 100 : 0,
   );
+
+export const totalMonsterValue = (monster: Monster) => {
+  const [, bonus] = targetFamiliarBonus(monster); // Destructure to get the bonus value from the tuple
+  return valueDrops(monster) + bonus;
+};
 export const isFree = (monster: Monster) => monster.attributes.includes("FREE");

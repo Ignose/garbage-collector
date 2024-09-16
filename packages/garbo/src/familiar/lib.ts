@@ -2,6 +2,7 @@ import {
   availableAmount,
   Familiar,
   inebrietyLimit,
+  Monster,
   myAdventures,
   myInebriety,
   totalTurnsPlayed,
@@ -14,11 +15,15 @@ import {
   clamp,
   get,
   have,
+  maxBy,
+  Robortender,
+  Snapper,
   sumNumbers,
 } from "libram";
 import { globalOptions } from "../config";
 import { baseMeat, ESTIMATED_OVERDRUNK_TURNS, turnsToNC } from "../lib";
 import { digitizedMonstersRemaining, estimatedGarboTurns } from "../turns";
+import { garboValue } from "../garboValue";
 
 export type GeneralFamiliar = {
   familiar: Familiar;
@@ -130,4 +135,28 @@ export function estimatedBarfExperience(): number {
   if (voter) sources.push(Number(voter));
 
   return sumNumbers(sources);
+}
+
+export function targetFamiliarBonus(monster: Monster): [Familiar, number] {
+  const familiarArray: [Familiar, number][] = [];
+
+  // Snapper
+  const snapperItem = Snapper.phylumItem.get(monster.phylum);
+  let snapperBonus = 0;
+  if (snapperItem !== undefined && have($familiar`Red-Nosed Snapper`)) {
+    snapperBonus = garboValue(snapperItem);
+  }
+  familiarArray.push([$familiar`Red-Nosed Snapper`, snapperBonus]);
+
+  // Robortender
+  const robotenderItem = Robortender.dropFrom(monster);
+  let robotenderBonus = 0;
+  if (robotenderItem !== undefined && have($familiar`Robortender`)) {
+    robotenderBonus = garboValue(robotenderItem) / Robortender.dropChance();
+  }
+  familiarArray.push([$familiar`Robortender`, robotenderBonus]);
+
+  const bestFamiliar = maxBy(familiarArray, ([, bonus]) => bonus);
+
+  return bestFamiliar;
 }
