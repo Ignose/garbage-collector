@@ -20,6 +20,7 @@ import {
   Item,
   itemAmount,
   itemDropsArray,
+  itemFact,
   lastMonster,
   Location,
   mallPrices,
@@ -40,6 +41,7 @@ import {
   mySpleenUse,
   myThrall,
   myTurncount,
+  numericFact,
   numericModifier,
   print,
   printHtml,
@@ -67,6 +69,7 @@ import {
   $effect,
   $familiar,
   $item,
+  $items,
   $location,
   $monster,
   $skill,
@@ -92,6 +95,7 @@ import {
   property,
   realmAvailable,
   set,
+  Snapper,
   SongBoom,
   SourceTerminal,
   sum,
@@ -103,6 +107,7 @@ import { acquire } from "./acquire";
 import { globalOptions } from "./config";
 import { garboAverageValue, garboValue } from "./garboValue";
 import { Outfit, OutfitSpec } from "grimoire-kolmafia";
+import { copyTargetCount } from "./target";
 
 export const eventLog: {
   initialCopyTargetsFought: number;
@@ -199,7 +204,7 @@ export const gooseDroneEligible = () =>
 
 export function averageTargetNet(): number {
   return targettingItems()
-    ? valueDrops(globalOptions.target)
+    ? totalDrops(globalOptions.target)
     : (targetMeat() * meatDropModifier()) / 100;
 }
 
@@ -1134,3 +1139,41 @@ export const valueDrops = (monster: Monster) =>
     !["c", "0", "p", "a"].includes(type) ? (garboValue(drop) * rate) / 100 : 0,
   );
 export const isFree = (monster: Monster) => monster.attributes.includes("FREE");
+export function snapperValue(mon: Monster): number {
+  if (!Snapper.have()) {
+    return 0;
+  }
+  const item = Snapper.phylumItem.get(mon.phylum);
+  if (!item) return 0;
+
+  const denominator =
+    11 -
+    (Snapper.getTrackedPhylum() === mon.phylum ? Snapper.getProgress() : 0);
+  if (denominator > copyTargetCount()) return 0;
+
+  return garboValue(item) / denominator;
+}
+const LIMITED_BOFA_DROPS = $items`pocket wish, tattered scrap of paper`;
+export function justTheFactsValue(mon: Monster): number {
+  if (!have($skill`Just the Facts`)) return 0;
+  switch (mon.factType) {
+    case "item": {
+      const item = itemFact(mon);
+      const quantity = numericFact(mon);
+      if (LIMITED_BOFA_DROPS.includes(item)) {
+        return 0;
+      }
+      return quantity * garboValue(item);
+    }
+    case "effect": {
+      return 0;
+    }
+    case "meat": {
+      return numericFact(mon);
+    }
+    default:
+      return 0;
+  }
+}
+export const totalDrops = (monster: Monster) =>
+  justTheFactsValue(monster) + snapperValue(monster) + valueDrops(monster);

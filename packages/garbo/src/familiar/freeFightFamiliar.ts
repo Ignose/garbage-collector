@@ -21,9 +21,9 @@ import { garboValue } from "../garboValue";
 import getConstantValueFamiliars from "./constantValueFamiliars";
 import getDropFamiliars from "./dropFamiliars";
 import getExperienceFamiliars from "./experienceFamiliars";
-import { GeneralFamiliar, snapperValue, timeToMeatify } from "./lib";
+import { GeneralFamiliar, timeToMeatify } from "./lib";
 import { meatFamiliar } from "./meatFamiliar";
-import { gooseDroneEligible, valueDrops } from "../lib";
+import { gooseDroneEligible, snapperValue, valueDrops } from "../lib";
 import { globalOptions } from "../config";
 import { copyTargetCount } from "../target";
 
@@ -99,7 +99,7 @@ export function menu(options: MenuOptions = {}): GeneralFamiliar[] {
     if (mode === "target" && Snapper.have()) {
       familiarMenu.push({
         familiar: $familiar`Red-Nosed Snapper`,
-        expectedValue: snapperValue(),
+        expectedValue: snapperValue(globalOptions.target),
         leprechaunMultiplier: 0,
         limit: "special",
       });
