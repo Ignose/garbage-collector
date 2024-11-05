@@ -6,18 +6,25 @@ import {
   $monster,
   $stat,
   get,
+  getModifier,
   have,
+  maxBy,
   realmAvailable,
   uneffect,
 } from "libram";
 import {
+  abort,
   Effect,
+  effectModifier,
+  isShruggable,
+  Item,
   mallPrice,
   myBuffedstat,
   myEffects,
   numericModifier,
   retrieveItem,
   runChoice,
+  Stat,
   toEffect,
   use,
   visitUrl,
@@ -30,72 +37,71 @@ import { globalOptions } from "../config";
 
 const eyepatch = $item`PirateRealm eyepatch`;
 
+function getBestDebuffItem(stat: Stat): Item {
+  const debuffs = Item.all()
+    .map((item) => ({ item, effect: effectModifier(item, "Effect") }))
+    .filter(
+      ({ effect }) =>
+        effect !== $effect.none &&
+        !have(effect) &&
+        getModifier(stat.toString(), effect) < 0,
+    );
+
+  return maxBy(
+    debuffs,
+    ({ item, effect }) =>
+      mallPrice(item) / getModifier(stat.toString(), effect),
+  ).item;
+}
+
+// Just checking for the gummi effects for now, maybe can check other stuff later?
 function keepStatsLow(): void {
-  const stats = [$stat`Muscle`, $stat`Moxie`, $stat`Mysticality`];
   const effects: Effect[] = Object.keys(myEffects()).map((effectName) =>
     toEffect(effectName),
   );
 
-  stats.forEach((stat) => {
+  // Use a traditional for loop for stats
+  for (const stat of Stat.all()) {
+    const statName = stat.toString();
+
     while (myBuffedstat(stat) > 100) {
-      if (
-        !have($effect`Mush-Mouth`) &&
-        mallPrice($item`Fun-Guy spore`) < 5_000
-      ) {
-        retrieveItem($item`Fun-Guy spore`);
-        use($item`Fun-Guy spore`);
+      for (const isShruggablePass of [true, false]) {
+        for (let j = 0; j < effects.length; j++) {
+          const ef = effects[j];
+          if (
+            isShruggable(ef) === isShruggablePass && // Process shruggable effects in first pass, non-shruggable in second
+            (getModifier(statName, ef) ||
+              getModifier(`${statName} Percent`, ef)) &&
+            !(
+              getModifier("Meat Drop", ef) > 0 ||
+              getModifier("Familiar Weight", ef) > 0 ||
+              getModifier("Smithsness", ef) > 0 ||
+              getModifier("Item Drop", ef) > 0
+            )
+          ) {
+            uneffect(ef); // Remove the effect
+          }
+          if (myBuffedstat(stat) <= 100) break;
+        }
+        if (myBuffedstat(stat) <= 100) break;
       }
-      if (stat === $stat`muscle`) {
-        if (
-          !have($item`decorative fountain`) &&
-          !have($effect`Sleepy`) &&
-          mallPrice($item`decorative fountain`) < 2_000
-        ) {
-          retrieveItem($item`decorative fountain`);
-        }
-        if (!have($effect`Sleepy`)) {
-          use($item`decorative fountain`);
-        }
-      }
+      if (myBuffedstat(stat) <= 100) break;
 
-      if (stat === $stat`moxie`) {
-        if (
-          !have($item`patchouli incense stick`) &&
-          !have($effect`Far Out`) &&
-          mallPrice($item`patchouli incense stick`) < 2_000
-        ) {
-          retrieveItem($item`patchouli incense stick`);
-        }
-        use($item`patchouli incense stick`);
-
-        if (have($effect`Endless Drool`) && stat === $stat`Moxie`) {
-          uneffect($effect`Endless Drool`);
-        }
-      }
-
-      if (mallPrice($item`Mr. Mediocrebar`) < 2_000 && !have($effect`Apathy`)) {
-        retrieveItem($item`Mr. Mediocrebar`);
-        use($item`Mr. Mediocrebar`);
-      }
-
-      if (have($effect`Feeling Excited`)) uneffect($effect`Feeling Excited`);
-      // Get effect names from myEffects and convert them to Effect instances
-      effects.forEach((ef) => {
-        // Check if the effect modifier includes the stat and not "meat"
-        if (
-          numericModifier(ef, `${stat.toString}`) &&
-          !(
-            numericModifier(ef, "meat drop") > 0 ||
-            numericModifier(ef, "familiar weight") ||
-            numericModifier(ef, "smithsness") ||
-            numericModifier(ef, "item drop")
-          )
-        ) {
-          uneffect(ef); // Remove the effect
-        }
-      });
+      const debuffItem = () => getBestDebuffItem(stat);
+      retrieveItem(debuffItem());
+      use(debuffItem());
     }
-  });
+  }
+
+  if (
+    myBuffedstat($stat`Moxie`) >= 100 ||
+    myBuffedstat($stat`Mysticality`) >= 100 ||
+    myBuffedstat($stat`Muscle`) >= 100
+  ) {
+    abort(
+      "Buffed stats are too high for PirateRealm! Check for equipment or buffs that we can add to prevent in the script",
+    );
+  }
 }
 
 export function prSetupTasks(): GarboTask[] {
