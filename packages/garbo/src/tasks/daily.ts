@@ -85,6 +85,7 @@ import {
 } from "../resources";
 import { GarboStrategy, Macro } from "../combat";
 import { luckyGoldRingDropValues } from "../outfit/dropsgearAccessories";
+import { monkeySlapDone } from "./lib";
 
 const closetItems = $items`4-d camera, sand dollar, unfinished ice sculpture`;
 const retrieveItems = $items`Half a Purse, seal tooth, The Jokester's gun`;
@@ -823,6 +824,28 @@ const DailyTasks: GarboTask[] = [
     do: () =>
       cliExecute(`minevolcano.ash ${5 - get("_unaccompaniedMinerUsed")}`),
     prepare: () => restoreHp(myMaxhp() * 0.9),
+    post: (): void => {
+      if (have($effect`Beaten Up`)) {
+        uneffect($effect`Beaten Up`);
+      }
+      if (myHp() < myMaxhp() * 0.5) {
+        restoreHp(myMaxhp() * 0.9);
+      }
+    },
+    spendsTurn: false,
+  },
+  {
+    name: "Set up Penguin slapping",
+    ready: () => globalOptions.penguin,
+    completed: () => monkeySlapDone(),
+    do: () => $location`The Copperhead Club`,
+    prepare: () => restoreHp(myMaxhp() * 0.9),
+    outfit: { equip: $items`cursed monkey's paw, spring shoes` },
+    combat: new GarboStrategy(() =>
+      Macro.if_(`(monsterphylum dude)`, Macro.trySkill($skill`Monkey Slap`))
+        .trySkill($skill`Spring Away`)
+        .abort(),
+    ),
     post: (): void => {
       if (have($effect`Beaten Up`)) {
         uneffect($effect`Beaten Up`);

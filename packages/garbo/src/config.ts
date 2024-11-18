@@ -255,6 +255,11 @@ You can use multiple options in conjunction, e.g. "garbo nobarf ascend"',
       () => false,
       "",
     ),
+    penguin: Args.custom<boolean>(
+      { hidden: true, default: false },
+      () => false,
+      "",
+    ),
     clarasBellClaimed: Args.custom<boolean>(
       { hidden: true, setting: "_claraBellUsed" },
       () => get("_claraBellUsed"),
