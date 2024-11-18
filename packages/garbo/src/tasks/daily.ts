@@ -854,7 +854,8 @@ const DailyTasks: GarboTask[] = [
         restoreHp(myMaxhp() * 0.9);
       }
     },
-    spendsTurn: false,
+    spendsTurn: true,
+    limit: { tries: 5 },
   },
 ];
 
