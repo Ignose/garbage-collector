@@ -19,6 +19,7 @@ import {
   Item,
   itemAmount,
   mallPrice,
+  Monster,
   myAscensions,
   myClass,
   myDaycount,
@@ -47,12 +48,14 @@ import {
   $items,
   $location,
   $monster,
+  $monsters,
   $skill,
   $slot,
   BeachComb,
   Clan,
   findLeprechaunMultiplier,
   get,
+  getBanishedMonsters,
   getModifier,
   getTodaysHolidayWanderers,
   have,
@@ -85,7 +88,6 @@ import {
 } from "../resources";
 import { GarboStrategy, Macro } from "../combat";
 import { luckyGoldRingDropValues } from "../outfit/dropsgearAccessories";
-import { monkeySlapDone } from "./lib";
 
 const closetItems = $items`4-d camera, sand dollar, unfinished ice sculpture`;
 const retrieveItems = $items`Half a Purse, seal tooth, The Jokester's gun`;
@@ -835,17 +837,34 @@ const DailyTasks: GarboTask[] = [
     spendsTurn: false,
   },
   {
-    name: "Set up Penguin slapping",
+    name: "Set up Penguin Banishes",
     ready: () => globalOptions.penguin,
-    completed: () => monkeySlapDone(),
+    completed: () => getMonstersToBanish().length === 0,
     do: () => $location`The Copperhead Club`,
-    prepare: () => restoreHp(myMaxhp() * 0.9),
-    outfit: { equip: $items`cursed monkey's paw, spring shoes` },
-    combat: new GarboStrategy(() =>
-      Macro.if_(`(monsterphylum dude)`, Macro.trySkill($skill`Monkey Slap`))
-        .trySkill($skill`Spring Away`)
-        .abort(),
-    ),
+    prepare: () => {
+      retrieveItem($item`human musk`);
+      restoreHp(myMaxhp() * 0.9);
+    },
+    outfit: {
+      equip: $items`cursed monkey's paw, spring shoes, seal-clubbing club, Greatest American Pants`,
+    },
+    combat: new GarboStrategy(() => {
+      return Macro.if_(
+        $monster`Copperhead Club bartender`,
+        Macro.skill($skill`Monkey Slap`),
+      )
+        .if_($monster`fan dancer`, Macro.skill($skill`Batter Up!`))
+        .if_(
+          $monster`ninja dressed as a waiter`,
+          Macro.skill($skill`Spring Kick`)
+            .trySkill($skill`Spring Away`)
+            .runaway(),
+        )
+        .if_(
+          $monster`waiter dressed as a ninja`,
+          Macro.item($item`human musk`),
+        );
+    }),
     post: (): void => {
       if (have($effect`Beaten Up`)) {
         uneffect($effect`Beaten Up`);
@@ -855,7 +874,7 @@ const DailyTasks: GarboTask[] = [
       }
     },
     spendsTurn: true,
-    limit: { tries: 5 },
+    limit: { tries: 10 },
   },
 ];
 
@@ -863,3 +882,11 @@ export const DailyQuest: Quest<GarboTask> = {
   name: "Daily",
   tasks: DailyTasks,
 };
+
+const monsters = $monsters`Copperhead Club bartender, fan dancer, ninja dressed as a waiter, waiter dressed as a ninja`;
+
+function getMonstersToBanish(): Monster[] {
+  const banishedMonsters = getBanishedMonsters();
+  const alreadyBanished = Array.from(banishedMonsters.values());
+  return monsters.filter((monster) => !alreadyBanished.includes(monster));
+}

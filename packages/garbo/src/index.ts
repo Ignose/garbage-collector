@@ -34,6 +34,7 @@ import {
   $class,
   $classes,
   $coinmaster,
+  $familiar,
   $item,
   $items,
   $monster,
@@ -138,6 +139,17 @@ export function main(argString = ""): void {
   Args.fill(globalOptions, argString);
   if (globalOptions.target === $monster.none) {
     globalOptions.target = defaultTarget();
+  }
+
+  if (
+    globalOptions.penguin &&
+    (!have($familiar`Red-Nosed Snapper`) ||
+      !have($item`cursed monkey's paw`) ||
+      !have($item`spring shoes`) ||
+      !have($skill`Batter Up!`) ||
+      myClass() !== $class`Seal Clubber`)
+  ) {
+    globalOptions.penguin = false;
   }
 
   globalOptions.prefs.yachtzeechain = false;

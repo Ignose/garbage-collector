@@ -94,7 +94,6 @@ import { shouldMakeEgg } from "../resources";
 import { lavaDogsAccessible, lavaDogsComplete } from "../resources/doghouse";
 import { hotTubAvailable } from "../resources/clanVIP";
 import { meatMood } from "../mood";
-import { getNextBanishSource } from "./lib";
 
 const digitizedTarget = () =>
   SourceTerminal.have() &&
@@ -1000,36 +999,12 @@ export const BarfTurnQuest: Quest<GarboTask> = {
       name: "Penguin",
       ready: () => globalOptions.penguin,
       prepare: () => {
-        if (getNextBanishSource() === $item`human musk`)
-          retrieveItem($item`human musk`);
         meatMood().execute(estimatedGarboTurns());
       },
       completed: () => myAdventures() === 0,
-      outfit: () => {
-        let banishSource = null;
-        if (getNextBanishSource() === $skill`Batter Up!`)
-          banishSource = $items`seal-clubbing club`;
-        if (getNextBanishSource() === $skill`Spring Kick`)
-          banishSource = $items`spring shoes`;
-        if (banishSource) {
-          return barfOutfit({
-            familiar: $familiar`Red-Nosed Snapper`,
-            equip: banishSource,
-          });
-        } else return barfOutfit({ familiar: $familiar`Red-Nosed Snapper` });
-      },
+      outfit: { familiar: $familiar`Red-Nosed Snapper` },
       do: $location`The Copperhead Club`,
-      combat: new GarboStrategy(
-        () => Macro.meatKill(),
-        () =>
-          Macro.if_(
-            `(monsterphylum dude)`,
-            Macro.trySkill($skill`Batter Up!`)
-              .trySkill($skill`Spring Kick`)
-              .tryItem($item`human musk`)
-              .meatKill(),
-          ).abort(),
-      ),
+      combat: new GarboStrategy(() => Macro.meatKill()),
       post: () => {
         trackMarginalMpa();
       },
