@@ -3,6 +3,7 @@ import {
   abort,
   availableAmount,
   buy,
+  canAdventure,
   canEquip,
   cliExecute,
   currentRound,
@@ -37,8 +38,10 @@ import {
   $familiar,
   $item,
   $items,
+  $location,
   $monster,
   $monsters,
+  $phylum,
   $skill,
   $skills,
   $slots,
@@ -142,12 +145,15 @@ export function main(argString = ""): void {
   }
 
   if (
-    globalOptions.penguin &&
-    (!have($familiar`Red-Nosed Snapper`) ||
-      !have($item`cursed monkey's paw`) ||
-      !have($item`spring shoes`) ||
-      !have($skill`Batter Up!`) ||
-      myClass() !== $class`Seal Clubber`)
+    (globalOptions.penguin &&
+      (!have($familiar`Red-Nosed Snapper`) ||
+        !have($item`cursed monkey's paw`) ||
+        get("_monkeyPawWishesUsed") > 0 ||
+        !have($item`spring shoes`) ||
+        !have($skill`Batter Up!`) ||
+        myClass() !== $class`Seal Clubber`)) ||
+    globalOptions.target.phylum !== $phylum`penguin` ||
+    !canAdventure($location`The Copperhead Club`)
   ) {
     globalOptions.penguin = false;
   }
