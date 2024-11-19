@@ -1002,7 +1002,7 @@ export const BarfTurnQuest: Quest<GarboTask> = {
         meatMood().execute(estimatedGarboTurns());
       },
       completed: () => myAdventures() === 0,
-      outfit: { familiar: $familiar`Red-Nosed Snapper` },
+      outfit: barfOutfit({ familiar: $familiar`Red-Nosed Snapper` }),
       do: $location`The Copperhead Club`,
       combat: new GarboStrategy(() => Macro.meatKill()),
       post: () => {
