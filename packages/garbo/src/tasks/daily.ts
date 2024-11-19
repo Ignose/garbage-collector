@@ -885,7 +885,7 @@ export const DailyQuest: Quest<GarboTask> = {
 
 const monsters = $monsters`Copperhead Club bartender, fan dancer, ninja dressed as a waiter, waiter dressed as a ninja`;
 
-function getMonstersToBanish(): Monster[] {
+export function getMonstersToBanish(): Monster[] {
   const banishedMonsters = getBanishedMonsters();
   const alreadyBanished = Array.from(banishedMonsters.values());
   return monsters.filter((monster) => !alreadyBanished.includes(monster));

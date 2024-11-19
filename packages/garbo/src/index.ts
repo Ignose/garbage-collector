@@ -91,6 +91,7 @@ import {
   SetupTargetCopyQuest,
 } from "./tasks";
 import { CockroachFinish, CockroachSetup } from "./tasks/cockroachPrep";
+import { getMonstersToBanish } from "./tasks/daily";
 
 // Max price for tickets. You should rethink whether Barf is the best place if they're this expensive.
 const TICKET_MAX_PRICE = 500000;
@@ -157,11 +158,12 @@ export function main(argString = ""): void {
   if (
     globalOptions.penguin &&
     (!have($familiar`Red-Nosed Snapper`) ||
-      !have($item`cursed monkey's paw`) ||
-      get("_monkeyPawWishesUsed") > 0 ||
-      !have($item`spring shoes`) ||
-      !have($skill`Batter Up!`) ||
-      myClass() !== $class`Seal Clubber` ||
+      ((!have($item`cursed monkey's paw`) ||
+        get("_monkeyPawWishesUsed") > 0 ||
+        !have($item`spring shoes`) ||
+        !have($skill`Batter Up!`) ||
+        myClass() !== $class`Seal Clubber`) &&
+        getMonstersToBanish.length > 0) ||
       globalOptions.target.phylum !== $phylum`penguin` ||
       !canAdventure($location`The Copperhead Club`))
   ) {
