@@ -41,7 +41,6 @@ import {
   $location,
   $monster,
   $monsters,
-  $phylum,
   $skill,
   $skills,
   $slots,
@@ -164,7 +163,6 @@ export function main(argString = ""): void {
         !have($skill`Batter Up!`) ||
         myClass() !== $class`Seal Clubber`) &&
         getMonstersToBanish.length > 0) ||
-      globalOptions.target.phylum !== $phylum`penguin` ||
       !canAdventure($location`The Copperhead Club`))
   ) {
     globalOptions.penguin = false;

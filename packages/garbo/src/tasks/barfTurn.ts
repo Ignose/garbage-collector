@@ -31,6 +31,7 @@ import {
   $items,
   $location,
   $monster,
+  $phylum,
   $skill,
   AprilingBandHelmet,
   ChestMimic,
@@ -47,6 +48,7 @@ import {
   questStep,
   realmAvailable,
   set,
+  Snapper,
   SourceTerminal,
   sum,
   TrainSet,
@@ -998,9 +1000,9 @@ export const BarfTurnQuest: Quest<GarboTask> = {
     {
       name: "Penguin",
       ready: () => globalOptions.penguin,
-      prepare: () => {
-        meatMood().execute(estimatedGarboTurns());
-      },
+      prepare: () =>
+        meatMood().execute(estimatedGarboTurns()) &&
+        Snapper.trackPhylum($phylum`Penguin`),
       completed: () => myAdventures() === 0,
       outfit: barfOutfit({ familiar: $familiar`Red-Nosed Snapper` }),
       do: $location`The Copperhead Club`,

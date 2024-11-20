@@ -23,6 +23,7 @@ import {
   myAscensions,
   myClass,
   myDaycount,
+  myFury,
   myHash,
   myHp,
   myInebriety,
@@ -75,7 +76,7 @@ import { globalOptions } from "../config";
 import { copyTargetCount } from "../target";
 import { meatFamiliar } from "../familiar";
 import { estimatedTentacles } from "../fights";
-import { baseMeat, HIGHLIGHT, targetMeat } from "../lib";
+import { baseMeat, HIGHLIGHT, safeRestore, targetMeat } from "../lib";
 import { garboValue } from "../garboValue";
 import { digitizedMonstersRemaining, estimatedGarboTurns } from "../turns";
 import { GarboTask } from "./engine";
@@ -843,7 +844,10 @@ const DailyTasks: GarboTask[] = [
     do: () => $location`The Copperhead Club`,
     prepare: () => {
       retrieveItem($item`human musk`);
-      restoreHp(myMaxhp() * 0.9);
+      if (mallPrice($item`shadow brick`) < get("valueOfAdventure")) {
+        retrieveItem($item`shadow brick`, 1);
+      }
+      safeRestore();
     },
     outfit: {
       equip: $items`cursed monkey's paw, spring shoes, seal-clubbing club, Greatest American Pants`,
@@ -853,17 +857,24 @@ const DailyTasks: GarboTask[] = [
         $monster`Copperhead Club bartender`,
         Macro.skill($skill`Monkey Slap`),
       )
-        .if_($monster`fan dancer`, Macro.skill($skill`Batter Up!`))
+        .externalIf(
+          myFury() < 5,
+          Macro.if_(
+            $monster`fan dancer`,
+            Macro.tryItem($item`shadow brick`).skill(
+              $skill`Lunging Thrust-Smack`,
+            ),
+          ),
+          Macro.if_($monster`fan dancer`, Macro.skill($skill`Batter Up!`)),
+        )
         .if_(
           $monster`ninja dressed as a waiter`,
           Macro.skill($skill`Spring Kick`)
             .trySkill($skill`Spring Away`)
             .runaway(),
         )
-        .if_(
-          $monster`waiter dressed as a ninja`,
-          Macro.item($item`human musk`),
-        );
+        .if_($monster`waiter dressed as a ninja`, Macro.item($item`human musk`))
+        .if_($monster`Mob Penguin Capo`, Macro.runaway());
     }),
     post: (): void => {
       if (have($effect`Beaten Up`)) {
@@ -874,7 +885,7 @@ const DailyTasks: GarboTask[] = [
       }
     },
     spendsTurn: true,
-    limit: { tries: 10 },
+    limit: { tries: 15 },
   },
 ];
 

@@ -37,7 +37,7 @@ import { freeFightOutfit, meatTargetOutfit } from "../outfit";
 import { GarboStrategy, Macro } from "../combat";
 import { acquire } from "../acquire";
 import { meatMood } from "../mood";
-import { targetMeat } from "../lib";
+import { safeRestore, targetMeat } from "../lib";
 import { copyTargetCount } from "../target";
 import { potionSetup } from "../potions";
 
@@ -375,6 +375,7 @@ export const CockroachFinish: Quest<GarboTask> = {
         meatMood(true, targetMeat()).execute(copyTargetCount());
         potionSetup(false);
         checkAndFixOvercapStats();
+        safeRestore();
       },
       do: () => $location`Crab Island`,
       outfit: () => {
