@@ -42,11 +42,13 @@ import { copyTargetCount } from "../target";
 import { potionSetup } from "../potions";
 
 function avoidDebuffItem(item: Item): boolean {
-  return Stat.all().some((stat) => getModifier(stat.toString(), item) > 0);
+  return Stat.all().some(
+    (stat) => getModifier(stat.toString(), effectModifier(item, "Effect")) > 0,
+  );
 }
 
 function getBestDebuffItem(stat: Stat): Item {
-  const itemBanList = $items`pill cup`;
+  const itemBanList = $items`pill cup, spooky eyeliner`;
   const debuffs = Item.all()
     .filter(
       (i) =>
