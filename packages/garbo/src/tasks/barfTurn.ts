@@ -1000,9 +1000,10 @@ export const BarfTurnQuest: Quest<GarboTask> = {
     {
       name: "Penguin",
       ready: () => globalOptions.penguin,
-      prepare: () =>
-        meatMood().execute(estimatedGarboTurns()) &&
-        Snapper.trackPhylum($phylum`Penguin`),
+      prepare: () => {
+        meatMood().execute(estimatedGarboTurns());
+        Snapper.trackPhylum($phylum`Penguin`);
+      },
       completed: () => myAdventures() === 0,
       outfit: barfOutfit({ familiar: $familiar`Red-Nosed Snapper` }),
       do: $location`The Copperhead Club`,
