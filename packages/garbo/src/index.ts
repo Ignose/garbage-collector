@@ -157,9 +157,7 @@ export function main(argString = ""): void {
   if (
     globalOptions.penguin &&
     (!have($familiar`Red-Nosed Snapper`) ||
-      ((!have($item`cursed monkey's paw`) ||
-        get("_monkeyPawWishesUsed") > 0 ||
-        !have($item`spring shoes`) ||
+      ((!have($item`spring shoes`) ||
         !have($skill`Batter Up!`) ||
         myClass() !== $class`Seal Clubber`) &&
         getMonstersToBanish.length > 0) ||

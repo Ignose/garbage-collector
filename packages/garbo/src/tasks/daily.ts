@@ -6,6 +6,7 @@ import {
   changeMcd,
   cliExecute,
   currentMcd,
+  equip,
   floristAvailable,
   gamedayToInt,
   getClanLounge,
@@ -38,6 +39,7 @@ import {
   toSlot,
   toUrl,
   use,
+  useFamiliar,
   visitUrl,
   votingBoothInitiatives,
   wait,
@@ -843,6 +845,24 @@ const DailyTasks: GarboTask[] = [
     completed: () => getMonstersToBanish().length === 0,
     do: () => $location`The Copperhead Club`,
     prepare: () => {
+      if (
+        get("_monkeyPawWishesUsed") > 0 ||
+        !have($item`cursed monkey's paw`)
+      ) {
+        if (!have($familiar`Nanorhino`) && have($familiar`Comma Chameleon`)) {
+          if (
+            mallPrice($item`pocket wish`) >
+            mallPrice($item`nanorhino credit card`)
+          ) {
+            acquire(1, $item`nanorhino credit card`, 50000);
+            useFamiliar($familiar`Comma Chameleon`);
+            equip($item`nanorhino credit card`);
+          } else {
+            acquire(1, $item`pocket wish`, 50000);
+            cliExecute(`genie effect Nanobrawny`);
+          }
+        }
+      }
       retrieveItem($item`human musk`);
       if (mallPrice($item`shadow brick`) < get("valueOfAdventure")) {
         retrieveItem($item`shadow brick`, 1);
@@ -850,14 +870,21 @@ const DailyTasks: GarboTask[] = [
       safeRestore();
     },
     outfit: {
+      familiar: have($familiar`Nanorhino`)
+        ? $familiar`Nanorhino`
+        : get("commaFamiliar") === $familiar`Nanorhino`
+          ? $familiar`Comma Chameleon`
+          : undefined,
       equip: $items`cursed monkey's paw, spring shoes, seal-clubbing club, Greatest American Pants`,
     },
     combat: new GarboStrategy(() => {
-      return Macro.if_(
-        $monster`Copperhead Club bartender`,
-        Macro.skill($skill`Monkey Slap`),
-      )
-        .externalIf(
+      return Macro.externalIf(
+        get("_nanorhinoCharge") === 100,
+        Macro.if_(
+          $monsters`fan dancer, Copperhead Club bartender`,
+          Macro.skill($skill`Lunging Thrust-Smack`),
+        ),
+        Macro.externalIf(
           myFury() < 5,
           Macro.if_(
             $monster`fan dancer`,
@@ -865,8 +892,14 @@ const DailyTasks: GarboTask[] = [
               $skill`Lunging Thrust-Smack`,
             ),
           ),
-          Macro.if_($monster`fan dancer`, Macro.skill($skill`Batter Up!`)),
-        )
+          Macro.if_($monster`fan dancer`, Macro.skill($skill`Batter Up!`)).if_(
+            $monster`Copperhead Club bartender`,
+            Macro.trySkill($skill`Monkey Slap`).trySkill(
+              $skill`Unleash Nanites`,
+            ),
+          ),
+        ),
+      )
         .if_(
           $monster`ninja dressed as a waiter`,
           Macro.skill($skill`Spring Kick`)
