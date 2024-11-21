@@ -308,6 +308,7 @@ export const CockroachSetup: Quest<GarboTask> = {
             allowAttackFamiliars: true,
             mode: "free",
           }),
+          avoid: $items`Roman Candelabra`,
         }),
       combat: new GarboStrategy(() =>
         Macro.externalIf(
@@ -398,7 +399,10 @@ export const CockroachFinish: Quest<GarboTask> = {
       completed: () => questStep("_questPirateRealm") > 6,
       prepare: () => checkAndFixOvercapStats(),
       do: () => adv1($location`Sailing the PirateRealm Seas`),
-      outfit: { equip: $items`PirateRealm eyepatch` },
+      outfit: {
+        equip: $items`PirateRealm eyepatch`,
+        avoid: $items`Roman Candelabra`,
+      },
       choices: { 1353: 5 }, // Trash Island
       limit: { tries: 1 },
       spendsTurn: false,
