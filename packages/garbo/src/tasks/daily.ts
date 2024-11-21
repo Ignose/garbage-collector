@@ -879,25 +879,18 @@ const DailyTasks: GarboTask[] = [
     },
     combat: new GarboStrategy(() => {
       return Macro.externalIf(
-        get("_nanorhinoCharge") === 100,
+        myFury() < 5,
         Macro.if_(
-          $monsters`fan dancer, Copperhead Club bartender`,
-          Macro.skill($skill`Lunging Thrust-Smack`),
+          $monster`fan dancer`,
+          Macro.tryItem($item`shadow brick`).skill(
+            $skill`Lunging Thrust-Smack`,
+          ),
         ),
-        Macro.externalIf(
-          myFury() < 5,
-          Macro.if_(
-            $monster`fan dancer`,
-            Macro.tryItem($item`shadow brick`).skill(
-              $skill`Lunging Thrust-Smack`,
-            ),
-          ),
-          Macro.if_($monster`fan dancer`, Macro.skill($skill`Batter Up!`)).if_(
-            $monster`Copperhead Club bartender`,
-            Macro.trySkill($skill`Monkey Slap`).trySkill(
-              $skill`Unleash Nanites`,
-            ),
-          ),
+        Macro.if_($monster`fan dancer`, Macro.skill($skill`Batter Up!`)).if_(
+          $monster`Copperhead Club bartender`,
+          Macro.trySkill($skill`Monkey Slap`)
+            .trySkill($skill`Unleash Nanites`)
+            .runaway(),
         ),
       )
         .if_(
