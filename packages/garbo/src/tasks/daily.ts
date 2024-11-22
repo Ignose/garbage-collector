@@ -6,7 +6,6 @@ import {
   changeMcd,
   cliExecute,
   currentMcd,
-  equip,
   floristAvailable,
   gamedayToInt,
   getClanLounge,
@@ -36,6 +35,7 @@ import {
   restoreHp,
   retrieveItem,
   runChoice,
+  toInt,
   toSlot,
   toUrl,
   use,
@@ -856,7 +856,11 @@ const DailyTasks: GarboTask[] = [
           ) {
             acquire(1, $item`nanorhino credit card`, 50000);
             useFamiliar($familiar`Comma Chameleon`);
-            equip($item`nanorhino credit card`);
+            visitUrl(
+              `inv_equip.php?which=2&action=equip&whichitem=${toInt(
+                $item`nanorhino credit card`,
+              )}&pwd`,
+            );
           } else {
             acquire(1, $item`pocket wish`, 50000);
             cliExecute(`genie effect Nanobrawny`);
