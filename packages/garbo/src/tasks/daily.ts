@@ -886,13 +886,15 @@ const DailyTasks: GarboTask[] = [
             $skill`Lunging Thrust-Smack`,
           ),
         ),
-        Macro.if_($monster`fan dancer`, Macro.skill($skill`Batter Up!`)).if_(
+        Macro.if_($monster`fan dancer`, Macro.skill($skill`Batter Up!`)),
+      )
+        .if_(
           $monster`Copperhead Club bartender`,
           Macro.trySkill($skill`Monkey Slap`)
             .trySkill($skill`Unleash Nanites`)
+            .tryItem($item`shadow brick`)
             .runaway(),
-        ),
-      )
+        )
         .if_(
           $monster`ninja dressed as a waiter`,
           Macro.skill($skill`Spring Kick`)
