@@ -1002,7 +1002,9 @@ export const BarfTurnQuest: Quest<GarboTask> = {
       ready: () => globalOptions.penguin,
       prepare: () => {
         meatMood().execute(estimatedGarboTurns());
-        Snapper.trackPhylum($phylum`Penguin`);
+        if (Snapper.getTrackedPhylum() !== $phylum`Penguin`) {
+          Snapper.trackPhylum($phylum`Penguin`);
+        }
       },
       completed: () => myAdventures() === 0,
       outfit: barfOutfit({ familiar: $familiar`Red-Nosed Snapper` }),
