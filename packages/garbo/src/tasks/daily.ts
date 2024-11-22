@@ -846,8 +846,12 @@ const DailyTasks: GarboTask[] = [
     do: () => $location`The Copperhead Club`,
     prepare: () => {
       if (
-        get("_monkeyPawWishesUsed") > 0 ||
-        !have($item`cursed monkey's paw`)
+        (get("_monkeyPawWishesUsed") > 0 ||
+          !have($item`cursed monkey's paw`)) &&
+        !(
+          getBanishedMonsters().get($item`ice house`) ===
+          $monster`Copperhead Club bartender`
+        )
       ) {
         if (!have($familiar`Nanorhino`) && have($familiar`Comma Chameleon`)) {
           if (
