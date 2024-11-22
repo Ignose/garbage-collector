@@ -52,6 +52,7 @@ import {
   $location,
   $monster,
   $monsters,
+  $phylum,
   $skill,
   $slot,
   BeachComb,
@@ -66,6 +67,7 @@ import {
   Pantogram,
   questStep,
   realmAvailable,
+  Snapper,
   SongBoom,
   SourceTerminal,
   sumNumbers,
@@ -882,7 +884,9 @@ const DailyTasks: GarboTask[] = [
         ? $familiar`Nanorhino`
         : get("commaFamiliar") === $familiar`Nanorhino`
           ? $familiar`Comma Chameleon`
-          : undefined,
+          : Snapper.getTrackedPhylum() === $phylum`Dude`
+            ? $familiar`Red-Nosed Snapper`
+            : undefined,
       equip: $items`cursed monkey's paw, spring shoes, seal-clubbing club, Greatest American Pants`,
     },
     combat: new GarboStrategy(() => {
