@@ -1007,9 +1007,22 @@ export const BarfTurnQuest: Quest<GarboTask> = {
         }
       },
       completed: () => myAdventures() === 0,
-      outfit: barfOutfit({ familiar: $familiar`Red-Nosed Snapper` }),
+      outfit: () => {
+        if (
+          have($item`Everfull Dart Holster`) &&
+          !have($effect`Everything Looks Red`)
+        ) {
+          return barfOutfit({
+            acc3: $item`Everfull Dart Holster`,
+            familiar: $familiar`Red-Nosed Snapper`,
+          });
+        }
+        return barfOutfit({ familiar: $familiar`Red-Nosed Snapper` });
+      },
       do: $location`The Copperhead Club`,
-      combat: new GarboStrategy(() => Macro.meatKill()),
+      combat: new GarboStrategy(() =>
+        Macro.trySkill($skill`Darts: Aim for the Bullseye`).meatKill(),
+      ),
       post: () => {
         trackMarginalMpa();
       },

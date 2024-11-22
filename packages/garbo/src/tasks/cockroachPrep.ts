@@ -251,7 +251,6 @@ export const CockroachSetup: Quest<GarboTask> = {
         1364: 2,
         1361: 1,
         1357: get("_pirateRealmGold") >= 50 ? 3 : 4,
-        1360: 6, // Will need to add shop handling, perhaps to choice adventure script
         1356: 3,
         1362:
           get("_pirateRealmShipSpeed") - get("_pirateRealmSailingTurns") >= 2
