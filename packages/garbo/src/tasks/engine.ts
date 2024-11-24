@@ -114,6 +114,11 @@ export class BaseGarboEngine extends Engine<never, GarboTask> {
  * Treats soft limits as tasks that should be skipped, with a default max of one attempt for any task.
  */
 export class SafeGarboEngine extends BaseGarboEngine {
+  static defaultSettings = {
+    ...Engine.defaultSettings,
+    choiceAdventureScript: "garbo_choice.js",
+  };
+
   constructor(tasks: GarboTask[]) {
     const options = new EngineOptions();
     options.default_task_options = { limit: { skip: 1 } };
