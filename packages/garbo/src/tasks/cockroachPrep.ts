@@ -384,6 +384,7 @@ export const CockroachFinish: Quest<GarboTask> = {
         const spec = meatTargetOutfit({
           modifier: ["meat"],
           equip: $items`PirateRealm eyepatch`,
+          avoid: $items`Roman Candelabra`,
         });
         return spec;
       },
