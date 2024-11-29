@@ -19,4 +19,13 @@ export function main(choiceNumber: number) {
     }
     runChoice(6);
   }
+  if (choiceNumber === 1224) {
+    runChoice(3);
+  }
+  if (choiceNumber === 1226) {
+    runChoice(2);
+  }
+  if (choiceNumber === 1228) {
+    runChoice(3);
+  }
 }

@@ -47,6 +47,8 @@ function avoidDebuffItem(item: Item): boolean {
   );
 }
 
+let debuffsUsed = 0;
+
 function getBestDebuffItem(stat: Stat): Item {
   const itemBanList = $items`pill cup, spooky eyeliner`;
   const debuffs = Item.all()
@@ -64,6 +66,10 @@ function getBestDebuffItem(stat: Stat): Item {
         !have(effect) &&
         getModifier(stat.toString(), effect) < 0,
     );
+  debuffsUsed++;
+  if (debuffsUsed >= 5) {
+    abort("Tried to do too many debuffs, aborting");
+  }
 
   return maxBy(
     debuffs,

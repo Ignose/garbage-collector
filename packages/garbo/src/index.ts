@@ -318,7 +318,11 @@ export function main(argString = ""): void {
   examine($item`designer sweatpants`);
 
   startSession();
-  if (!globalOptions.nobarf && !globalOptions.simdiet) {
+  if (
+    !globalOptions.nobarf &&
+    !globalOptions.simdiet &&
+    !globalOptions.penguin
+  ) {
     ensureBarfAccess();
   }
   if (globalOptions.simdiet) {

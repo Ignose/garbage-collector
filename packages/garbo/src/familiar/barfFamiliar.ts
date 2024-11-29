@@ -40,6 +40,7 @@ import { getAllJellyfishDrops, menu } from "./freeFightFamiliar";
 import { GeneralFamiliar, timeToMeatify, turnsAvailable } from "./lib";
 import { meatFamiliar } from "./meatFamiliar";
 import { garboValue } from "../garboValue";
+import { globalOptions } from "../config";
 
 const ITEM_DROP_VALUE = 0.72;
 const MEAT_DROP_VALUE = baseMeat() / 100;
@@ -235,7 +236,9 @@ export function barfFamiliar(): { familiar: Familiar; extraValue: number } {
 
   const fullMenu = menu({
     canChooseMacro: true,
-    location: $location`Barf Mountain`,
+    location: globalOptions.penguin
+      ? $location`The Copperhead Club`
+      : $location`Barf Mountain`,
     includeExperienceFamiliars: true,
     mode: "barf",
   }).map(calculateOutfitValue);
