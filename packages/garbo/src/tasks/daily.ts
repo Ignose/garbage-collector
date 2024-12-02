@@ -99,6 +99,7 @@ const retrieveItems = $items`Half a Purse, seal tooth, The Jokester's gun`;
 
 let latteRefreshed = false;
 let snojoConfigured = false;
+let iceHouse = false;
 
 // For this valuation, we are using the rough approximated value of different
 //   voting initiatives. They are relatively straghtforward:
@@ -838,6 +839,17 @@ const DailyTasks: GarboTask[] = [
       if (myHp() < myMaxhp() * 0.5) {
         restoreHp(myMaxhp() * 0.9);
       }
+    },
+    spendsTurn: false,
+  },
+  {
+    name: "Check Ice House",
+    ready: () => globalOptions.penguin,
+    completed: () => iceHouse,
+    do: () => {
+      visitUrl("museum.php?action=icehouse");
+      visitUrl("main.php");
+      iceHouse = true;
     },
     spendsTurn: false,
   },
