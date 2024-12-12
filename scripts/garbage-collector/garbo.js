@@ -27064,7 +27064,7 @@ var workshedAliases = [{
   item: $item(_templateObject3129 || (_templateObject3129 = _taggedTemplateLiteral73(["Little Geneticist DNA-Splicing Lab"]))),
   aliases: ["dnalab"]
 }];
-var unaliasedSheds = $items(_templateObject4107 || (_templateObject4107 = _taggedTemplateLiteral73(["cold medicine cabinet, diabolic pizza cube, portable Mayo Clinic, spinning wheel, warbear auto-anvil, warbear chemistry lab, warbear high-efficiency still, warbear induction oven, warbear jackhammer drill press, warbear LP-ROM burner"])));
+var unaliasedSheds = $items(_templateObject4107 || (_templateObject4107 = _taggedTemplateLiteral73(["TakerSpace letter of Marque, cold medicine cabinet, diabolic pizza cube, portable Mayo Clinic, spinning wheel, warbear auto-anvil, warbear chemistry lab, warbear high-efficiency still, warbear induction oven, warbear jackhammer drill press, warbear LP-ROM burner"])));
 var allWorkshedAliases = [].concat(_toConsumableArray27(workshedAliases.map(function(_ref) {
   var item12 = _ref.item, aliases = _ref.aliases;
   return {
@@ -27862,7 +27862,7 @@ function checkGithubVersion() {
       var releaseSHA = (_gitBranches$find = gitBranches.find(function(branchInfo) {
         return branchInfo.name === "release";
       })) === null || _gitBranches$find === void 0 || (_gitBranches$find = _gitBranches$find.commit) === null || _gitBranches$find === void 0 ? void 0 : _gitBranches$find.sha;
-      (0, import_kolmafia86.print)("Local Version: ".concat(localSHA, " (built from ").concat("main", "@").concat("51d63671f550cf83c42bdd453f87b5194b51194c", ")"));
+      (0, import_kolmafia86.print)("Local Version: ".concat(localSHA, " (built from ").concat("main", "@").concat("3e3a50920f9ca926963f7ffa23e8109a40cc01c8", ")"));
       if (releaseSHA === localSHA) {
         (0, import_kolmafia86.print)("Garbo is up to date!", HIGHLIGHT);
       } else if (releaseSHA === void 0) {
@@ -38045,7 +38045,7 @@ var worksheds = [new GarboWorkshed({
     workshed: item12,
     done: potionSetupCompleted
   });
-})), _toConsumableArray55($items(_templateObject1059 || (_templateObject1059 = _taggedTemplateLiteral114(["snow machine, warbear jackhammer drill press, warbear auto-anvil"]))).map(function(item12) {
+})), _toConsumableArray55($items(_templateObject1059 || (_templateObject1059 = _taggedTemplateLiteral114(["TakerSpace letter of Marque, snow machine, warbear jackhammer drill press, warbear auto-anvil"]))).map(function(item12) {
   return new GarboWorkshed({
     workshed: item12
   });
@@ -39366,10 +39366,10 @@ var FreeFightTasks = [
   {
     name: "Portscan + Macrometeorite + Mushroom garden",
     ready: function() {
-      return (have($item(_templateObject1474 || (_templateObject1474 = _taggedTemplateLiteral118(["packet of mushroom spores"])))) || (0, import_kolmafia123.getCampground)()["packet of mushroom spores"] !== void 0) && !doingGregFight() && counter_exports.get("portscan.edu") === 0 && have($skill(_templateObject1484 || (_templateObject1484 = _taggedTemplateLiteral118(["Macrometeorite"])))) && get("_macrometeoriteUses") < 10;
+      return (have($item(_templateObject1474 || (_templateObject1474 = _taggedTemplateLiteral118(["packet of mushroom spores"])))) || (0, import_kolmafia123.getCampground)()["packet of mushroom spores"] !== void 0) && !doingGregFight() && have($skill(_templateObject1484 || (_templateObject1484 = _taggedTemplateLiteral118(["Macrometeorite"])))) && get("_macrometeoriteUses") < 10;
     },
     completed: function() {
-      return get("_mushroomGardenFights") > 0;
+      return counter_exports.exists("portscan.edu");
     },
     prepare: function() {
       if (have($item(_templateObject1494 || (_templateObject1494 = _taggedTemplateLiteral118(["packet of mushroom spores"]))))) {
@@ -42566,6 +42566,13 @@ function canGetFusedFuse() {
     return get("_volcanoItem".concat(it)) === $item(_templateObject4324 || (_templateObject4324 = _taggedTemplateLiteral121(["fused fuse"]))).id;
   }) && canForceNoncombat();
 }
+function getAutosellableMeltingJunk() {
+  return import_kolmafia126.Item.all().filter(function(i) {
+    return (get2("Lasts Until Rollover", i) || globalOptions.ascend && i.quest) && have(i) && (0, import_kolmafia126.autosellPrice)(i) > 0 && (globalOptions.ascend || !["Adventures", "PvP Fights", "Rollover Effect Duration"].some(function(mod) {
+      return get2(mod);
+    }));
+  });
+}
 var NonBarfTurnTasks = [{
   name: "Make Mimic Eggs (whatever we can)",
   ready: function() {
@@ -42751,6 +42758,18 @@ var NonBarfTurnTasks = [{
   sobriety: "drunk",
   turns: function() {
     return (0, import_kolmafia126.availableAmount)($item(_templateObject7015 || (_templateObject7015 = _taggedTemplateLiteral121(["Map to Safety Shelter Grimace Prime"]))));
+  }
+}, {
+  name: "Autosell Melting Junk",
+  completed: function() {
+    return getAutosellableMeltingJunk().length === 0;
+  },
+  spendsTurn: false,
+  turns: 0,
+  do: function() {
+    return getAutosellableMeltingJunk().forEach(function(i) {
+      return (0, import_kolmafia126.autosell)(i, (0, import_kolmafia126.availableAmount)(i));
+    });
   }
 }, {
   name: "Use Day Shorteners (drunk)",
@@ -46271,7 +46290,7 @@ function defaultTarget() {
 }
 function main() {
   var argString = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : "";
-  sinceKolmafiaRevision(28078);
+  sinceKolmafiaRevision(28151);
   checkGithubVersion();
   (0, import_kolmafia141.visitUrl)("main.php");
   if ((0, import_kolmafia141.currentRound)() > 0) {
