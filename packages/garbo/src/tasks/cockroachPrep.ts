@@ -95,6 +95,14 @@ function getBestDebuffItem(stat: Stat): Item {
 // Just checking for the gummi effects for now, maybe can check other stuff later?
 function checkAndFixOvercapStats(): void {
   if (debuffedEnough()) return;
+  if(have($item`decorative fountain`)) {
+    use($item`decorative fountain`)
+  }
+  if(mallPrice($item`Mr. Mediocrebar`) < 500) {
+    retrieveItem($item`Mr. Mediocrebar`)
+    use($item`Mr. Mediocrebar`)
+  }
+  if (debuffedEnough()) return;
 
   for (const isShruggablePass of [true, false]) {
     for (const ef of getActiveEffects()) {
