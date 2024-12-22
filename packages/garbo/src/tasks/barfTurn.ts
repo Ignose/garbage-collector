@@ -380,7 +380,7 @@ function getAutosellableMeltingJunk(): Item[] {
     (i) =>
       (getModifier("Lasts Until Rollover", i) ||
         (globalOptions.ascend && i.quest)) &&
-      have(i) &&
+      itemAmount(i) &&
       autosellPrice(i) > 0 &&
       (globalOptions.ascend ||
         !(
@@ -552,9 +552,7 @@ const NonBarfTurnTasks: AlternateTask[] = [
     spendsTurn: false,
     turns: 0,
     do: () =>
-      getAutosellableMeltingJunk().forEach((i) =>
-        autosell(i, availableAmount(i)),
-      ),
+      getAutosellableMeltingJunk().forEach((i) => autosell(i, itemAmount(i))),
   },
   {
     name: "Use Day Shorteners (drunk)",
