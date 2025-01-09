@@ -248,7 +248,9 @@ function meatTargetSetup() {
   setLocation($location`Friar Ceremony Location`);
   potionSetup(false);
   maximize("MP", false);
-  meatMood(true, targetMeat()).execute(copyTargetCount());
+  if(targettingMeat()) {
+    meatMood(true, targetMeat()).execute(copyTargetCount());
+  }
   safeRestore();
   freeFightMood().execute(50);
   useBuffExtenders();
