@@ -102,13 +102,6 @@ function ensureBarfAccess() {
     if (!have(ticket)) buy(1, ticket, TICKET_MAX_PRICE);
     use(ticket);
   }
-  if (!get("_dinseyGarbageDisposed")) {
-    print("Disposing of garbage.", HIGHLIGHT);
-    retrieveItem($item`bag of park garbage`);
-    visitUrl("place.php?whichplace=airport_stench&action=airport3_tunnels");
-    runChoice(6);
-    cliExecute("refresh inv");
-  }
 }
 
 function defaultTarget() {
@@ -325,6 +318,7 @@ export function main(argString = ""): void {
   ) {
     ensureBarfAccess();
   }
+
   if (globalOptions.simdiet) {
     propertyManager.set({
       logPreferenceChange: true,
