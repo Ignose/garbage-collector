@@ -1101,7 +1101,8 @@ export const BarfTurnQuest: Quest<GarboTask> = {
                   .runaway(),
               )
               .if_($monster`waiter dressed as a ninja`, Macro.tryItem($item`human musk`))
-              .if_($monster`Mob Penguin Capo`, Macro.meatKill());
+              .if_($monster`Mob Penguin Capo`, Macro.meatKill())
+              .meatKill();
           }),
       post: () => {
         trackMarginalMpa();
