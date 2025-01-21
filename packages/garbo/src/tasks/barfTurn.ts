@@ -1102,6 +1102,7 @@ export const BarfTurnQuest: Quest<GarboTask> = {
               )
               .if_($monster`waiter dressed as a ninja`, Macro.tryItem($item`human musk`))
               .if_($monster`Mob Penguin Capo`, Macro.meatKill())
+              .if_($monster`sausage goblin`, Macro.meatKill())
               .meatKill();
           }),
       post: () => {
