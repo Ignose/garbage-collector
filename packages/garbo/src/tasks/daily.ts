@@ -18,6 +18,7 @@ import {
   isOnline,
   Item,
   itemAmount,
+  Location,
   mallPrice,
   Monster,
   myAscensions,
@@ -36,16 +37,19 @@ import {
   retrieveItem,
   runChoice,
   toInt,
+  toSkill,
   toSlot,
   toUrl,
   use,
   useFamiliar,
+  useSkill,
   visitUrl,
   votingBoothInitiatives,
   wait,
 } from "kolmafia";
 import {
   $effect,
+  $effects,
   $familiar,
   $item,
   $items,
@@ -337,6 +341,10 @@ function freddiesProfitable(): boolean {
     sumNumbers(valuesWithFreddy) / valuesWithFreddy.length >
     sumNumbers(valuesWithoutFreddy) / valuesWithoutFreddy.length
   );
+}
+
+function nextCyberZone(): Location {
+  return get("_cyberZone1Turns") < 9 ? $location`Cyberzone 1` : $location`Cyberzone 2`
 }
 
 const DailyTasks: GarboTask[] = [
@@ -954,6 +962,42 @@ const DailyTasks: GarboTask[] = [
     spendsTurn: true,
     limit: { tries: 15 },
   },
+    {
+      name: "Run CyberRealm",
+      ready: () => get("crAlways") && have($skill`OVERCLOCK(10)`),
+      prepare: () => {
+        $effects`Astral Shell, Elemental Saucesphere, Scarysauce`.forEach((ef) => {
+          if (!have(ef)) useSkill(toSkill(ef));
+        });
+      },
+      completed: () => get("_cyberFreeFights") === 0,
+      choices: { 1545: 1, 1546: 1, 1547: 1, 1548: 1, 1549: 1, 1550: 1 },
+      do: () => nextCyberZone(),
+      outfit: {
+        hat: $item`Crown of Thrones`,
+        back: $item`unwrapped knock-off retro superhero cape`,
+        shirt: $item`zero-trust tanktop`,
+        weapon: $item`June cleaver`,
+        offhand: $item`visual packet sniffer`,
+        pants: $item`digibritches`,
+        acc1: $item`retro floppy disk`,
+        acc2: $item`retro floppy disk`,
+        acc3: $item`retro floppy disk`,
+        famequip: $item`familiar-in-the-middle wrapper`,
+        modes: { retrocape: ["vampire", "hold"] },
+        riders: { "crown-of-thrones": $familiar`Mini Kiwi` },
+      },
+      combat: new GarboStrategy(() =>
+            Macro.if_(
+              [
+                $phylum`dude`,
+              ],
+              Macro.basicCombat(),
+            ).skill($skill`Throw Cyber Rock`)
+            .repeat(),
+          ),
+      spendsTurn: false,
+    },
 ];
 
 export const DailyQuest: Quest<GarboTask> = {
