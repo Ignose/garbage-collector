@@ -82,7 +82,7 @@ import { acquire } from "../acquire";
 import { withStash } from "../clan";
 import { globalOptions } from "../config";
 import { copyTargetCount } from "../target";
-import { meatFamiliar } from "../familiar";
+import { freeFightFamiliar, meatFamiliar } from "../familiar";
 import { estimatedTentacles } from "../fights";
 import { baseMeat, HIGHLIGHT, safeRestore, targetMeat } from "../lib";
 import { garboValue } from "../garboValue";
@@ -97,6 +97,7 @@ import {
 } from "../resources";
 import { GarboStrategy, Macro } from "../combat";
 import { luckyGoldRingDropValues } from "../outfit/dropsgearAccessories";
+import { freeFightOutfit } from "../outfit";
 
 const closetItems = $items`4-d camera, sand dollar, unfinished ice sculpture`;
 const retrieveItems = $items`Half a Purse, seal tooth, The Jokester's gun`;
@@ -973,20 +974,18 @@ const DailyTasks: GarboTask[] = [
       completed: () => get("_cyberFreeFights") === 0,
       choices: { 1545: 1, 1546: 1, 1547: 1, 1548: 1, 1549: 1, 1550: 1 },
       do: () => nextCyberZone(),
-      outfit: {
-        hat: $item`Crown of Thrones`,
-        back: $item`unwrapped knock-off retro superhero cape`,
-        shirt: $item`zero-trust tanktop`,
-        weapon: $item`June cleaver`,
-        offhand: $item`visual packet sniffer`,
-        pants: $item`digibritches`,
-        acc1: $item`retro floppy disk`,
-        acc2: $item`retro floppy disk`,
-        acc3: $item`retro floppy disk`,
-        famequip: $item`familiar-in-the-middle wrapper`,
-        modes: { retrocape: ["vampire", "hold"] },
-        riders: { "crown-of-thrones": $familiar`Mini Kiwi` },
-      },
+      outfit: () =>
+        freeFightOutfit({
+          shirt: $item`zero-trust tanktop`,
+          pants: $item`digibritches`,
+          bonuses: cyberOutfitBonuses(),
+          familiar: freeFightFamiliar({
+            canChooseMacro: false,
+            location: get("_lastPirateRealmIsland", $location`none`),
+            allowAttackFamiliars: true,
+            mode: "free",
+          }),
+        }),
       combat: new GarboStrategy(() =>
             Macro.if_(
               [
@@ -999,6 +998,14 @@ const DailyTasks: GarboTask[] = [
       spendsTurn: false,
     },
 ];
+
+function cyberOutfitBonuses() {
+  return new Map([
+    [$item`retro floppy disk`, garboValue($item`1`)],
+    [$item`familiar-in-the-middle wrapper`, garboValue($item`1`)],
+    [$item`visual packet sniffer`, garboValue($item`1`)],
+  ])
+}
 
 export const DailyQuest: Quest<GarboTask> = {
   name: "Daily",
