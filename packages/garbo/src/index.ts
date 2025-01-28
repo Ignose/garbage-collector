@@ -11,6 +11,7 @@ import {
   getClanName,
   guildStoreAvailable,
   handlingChoice,
+  haveEquipped,
   inebrietyLimit,
   Item,
   logprint,
@@ -57,6 +58,7 @@ import {
   setCombatFlags,
   setDefaultMaximizeOptions,
   sinceKolmafiaRevision,
+  unequip,
 } from "libram";
 import { stashItems, withStash, withVIPClan } from "./clan";
 import { globalOptions, isQuickGear } from "./config";
@@ -64,7 +66,6 @@ import { dailySetup } from "./dailies";
 import { nonOrganAdventures, runDiet } from "./diet";
 import { dailyFights, freeFights } from "./fights";
 import {
-  allMallPrices,
   bestJuneCleaverOption,
   checkGithubVersion,
   HIGHLIGHT,
@@ -127,6 +128,14 @@ export function main(argString = ""): void {
   sinceKolmafiaRevision(28151); // detect TakerSpace + basic related functionality
   checkGithubVersion();
 
+  Args.fill(globalOptions, argString);
+  // Instant returns placed before visiting anything.
+  if (globalOptions.version) return; // Since we always print the version, all done!
+  if (globalOptions.help) {
+    Args.showHelp(globalOptions);
+    return;
+  }
+
   // Hit up main.php to get out of easily escapable choices
   visitUrl("main.php");
   if (currentRound() > 0) {
@@ -140,9 +149,8 @@ export function main(argString = ""): void {
     );
   }
 
-  allMallPrices();
+  cliExecute("mallcheck.js");
 
-  Args.fill(globalOptions, argString);
   if (globalOptions.target === $monster.none) {
     globalOptions.target = defaultTarget();
   }
@@ -160,11 +168,6 @@ export function main(argString = ""): void {
   }
 
   globalOptions.prefs.yachtzeechain = false;
-  if (globalOptions.version) return; // Since we always print the version, all done!
-  if (globalOptions.help) {
-    Args.showHelp(globalOptions);
-    return;
-  }
 
   if (globalOptions.turns) {
     if (globalOptions.turns >= 0) {
@@ -204,10 +207,17 @@ export function main(argString = ""): void {
         if (parsedClanIdOrName) {
           Clan.with(parsedClanIdOrName, () => {
             for (const item of [...stashItems]) {
-              if (getFoldGroup(item).some((item) => have(item))) {
+              const equipped = [item, ...getFoldGroup(item)].find((i) =>
+                haveEquipped(i),
+              );
+              if (equipped) unequip(equipped);
+
+              if (getFoldGroup(item).some((i) => have(i))) {
                 cliExecute(`fold ${item}`);
               }
+
               const retrieved = retrieveItem(item);
+
               if (
                 item === $item`Spooky Putty sheet` &&
                 !retrieved &&
@@ -215,6 +225,7 @@ export function main(argString = ""): void {
               ) {
                 continue;
               }
+
               print(`Returning ${item} to ${getClanName()} stash.`, HIGHLIGHT);
               if (putStash(item, 1)) {
                 stashItems.splice(stashItems.indexOf(item), 1);
@@ -229,13 +240,14 @@ export function main(argString = ""): void {
       if (
         userConfirmDialog(
           "Are you a responsible friend who has already returned their stash clan items, or promise to do so manually at a later time?",
-          true,
+          false,
         )
       ) {
         stashItems.splice(0);
       }
     }
   }
+
   if (globalOptions.returnstash) {
     set(
       "garboStashItems",
