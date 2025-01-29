@@ -665,12 +665,14 @@ const DailyItemTasks: GarboTask[] = [
       ready: () => have($item`candy egg deviler`),
       completed: () => get("_candyEggsDeviled") >= 3,
       do: () => {
-        const bestCandyArray = Item.all().filter((i) => i.candy);
-        const bestCandy = maxBy(bestCandyArray, mallPrice)
+        const bestCandyArray = Item.all().filter((i) => i.candy && i.tradeable);
+        const bestCandy = maxBy(bestCandyArray, mallPrice, true)
         visitUrl(`inventory.php?action=eggdevil&pwd`);
-        visitUrl(`choice.php?a=${bestCandy}&whichchoice=1544&option=1&pwd`);
-        visitUrl(`choice.php?a=${bestCandy}&whichchoice=1544&option=1&pwd`);
-        visitUrl(`choice.php?a=${bestCandy}&whichchoice=1544&option=1&pwd`);
+        let eggsDeviled = get("_candyEggsDeviled");
+        while (eggsDeviled < 3) {
+          visitUrl(`choice.php?a=${bestCandy}&whichchoice=1544&option=1&pwd`);
+          eggsDeviled++;
+        }
       },
       spendsTurn: false,
     },
