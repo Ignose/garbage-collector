@@ -248,7 +248,9 @@ function meatTargetSetup() {
   setLocation($location`Friar Ceremony Location`);
   potionSetup(false);
   maximize("MP", false);
-  meatMood(true, targetMeat()).execute(copyTargetCount());
+  if(targettingMeat()) {
+    meatMood(true, targetMeat()).execute(copyTargetCount());
+  }
   safeRestore();
   freeFightMood().execute(50);
   useBuffExtenders();
@@ -1210,13 +1212,15 @@ const priorityFreeRunFightSources = [
     () =>
       have($familiar`Patriotic Eagle`) &&
       !have($effect`Citizen of a Zone`) &&
-      $locations`Barf Mountain, The Fun-Guy Mansion`.some((l) =>
-        canAdventure(l),
+      $locations`Barf Mountain, The Fun-Guy Mansion, The Batrat and Ratbat Burrow`.some(
+        (l) => canAdventure(l),
       ),
     (runSource: ActionSource) => {
       const location = canAdventure($location`Barf Mountain`)
         ? $location`Barf Mountain`
-        : $location`The Fun-Guy Mansion`;
+        : canAdventure($location`The Batrat and Ratbat Burrow`)
+          ? $location`The Batrat and Ratbat Burrow`
+          : $location`The Fun-Guy Mansion`;
       garboAdventure(
         location,
         Macro.skill($skill`%fn, let's pledge allegiance to a Zone`).step(

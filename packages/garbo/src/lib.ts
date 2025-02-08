@@ -158,7 +158,8 @@ const songboomMeat = () =>
     : 0;
 
 // all tourists have a basemeat of 250
-export const baseMeat = () => 250 + songboomMeat();
+export const baseMeat = () =>
+  (globalOptions.penguin ? 200 : 250) + songboomMeat();
 export const targetMeat = () =>
   (globalOptions.target.minMeat + globalOptions.target.maxMeat) / 2 +
   songboomMeat();

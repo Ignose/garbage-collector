@@ -14,6 +14,7 @@ import {
   maximize,
   myAdventures,
   myAscensions,
+  myFury,
   myInebriety,
   myLevel,
   myLightning,
@@ -35,6 +36,7 @@ import {
   $items,
   $location,
   $monster,
+  $phylum,
   $skill,
   AprilingBandHelmet,
   ChestMimic,
@@ -52,6 +54,7 @@ import {
   questStep,
   realmAvailable,
   set,
+  Snapper,
   SourceTerminal,
   sum,
   TrainSet,
@@ -100,6 +103,7 @@ import { shouldMakeEgg } from "../resources";
 import { lavaDogsAccessible, lavaDogsComplete } from "../resources/doghouse";
 import { hotTubAvailable } from "../resources/clanVIP";
 import { meatMood } from "../mood";
+import { getMonstersToBanish } from "./daily";
 
 const digitizedTarget = () =>
   SourceTerminal.have() &&
@@ -1053,6 +1057,7 @@ export const BarfTurnQuest: Quest<GarboTask> = {
     },
     {
       name: "Barf",
+      ready: () => !globalOptions.penguin,
       completed: () => myAdventures() === 0,
       outfit: () => {
         const lubing =
@@ -1074,6 +1079,67 @@ export const BarfTurnQuest: Quest<GarboTask> = {
         meatMood().execute(estimatedGarboTurns()),
       post: () => {
         completeBarfQuest();
+        trackMarginalMpa();
+      },
+      spendsTurn: true,
+    },
+    {
+      name: "Penguin",
+      ready: () => globalOptions.penguin,
+      prepare: () => {
+        meatMood().execute(estimatedGarboTurns());
+        if (Snapper.getTrackedPhylum() !== $phylum`Penguin`) {
+          Snapper.trackPhylum($phylum`Penguin`);
+        }
+        if (getMonstersToBanish().includes($monster`waiter dressed as a ninja`)) {
+          retrieveItem($item`human musk`)
+        }
+      },
+      completed: () => myAdventures() === 0,
+      outfit: () => {
+        const outfits = barfOutfit({familiar: $familiar`Red-Nosed Snapper`, equip: []})
+        if (
+          have($item`Everfull Dart Holster`) &&
+          !have($effect`Everything Looks Red`)
+        ) {
+          outfits.equip($item`Everfull Dart Holster`);
+          };
+        if (getMonstersToBanish().includes($monster`ninja dressed as a waiter`)) {
+          outfits.equip($item`spring shoes`)
+        }
+        return outfits;
+      },
+      do: $location`The Copperhead Club`,
+      combat: new GarboStrategy(() => {
+            return Macro.externalIf(
+              myFury() < 5,
+              Macro.if_(
+                $monster`fan dancer`,
+                Macro.tryItem($item`shadow brick`).trySkill(
+                  $skill`Lunging Thrust-Smack`,
+                ),
+              ),
+              Macro.if_($monster`fan dancer`, Macro.trySkill($skill`Batter Up!`)),
+            )
+              .if_(
+                $monster`Copperhead Club bartender`,
+                Macro.trySkill($skill`Monkey Slap`)
+                  .trySkill($skill`Unleash Nanites`)
+                  .tryItem($item`shadow brick`)
+                  .runaway(),
+              )
+              .if_(
+                $monster`ninja dressed as a waiter`,
+                Macro.skill($skill`Spring Kick`)
+                  .trySkill($skill`Spring Away`)
+                  .runaway(),
+              )
+              .if_($monster`waiter dressed as a ninja`, Macro.tryItem($item`human musk`))
+              .if_($monster`Mob Penguin Capo`, Macro.meatKill())
+              .if_($monster`sausage goblin`, Macro.meatKill())
+              .meatKill();
+          }),
+      post: () => {
         trackMarginalMpa();
       },
       spendsTurn: true,
