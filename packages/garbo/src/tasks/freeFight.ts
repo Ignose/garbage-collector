@@ -691,10 +691,11 @@ const FreeFightTasks: GarboFreeFightTask[] = [
         )
         .basicCombat(),
     ),
-    outfit: () => freeFightOutfit({
-      familiar: $familiar`Machine Elf`,
-      bonuses: cupidBonus(),
-    }),
+    outfit: () =>
+      freeFightOutfit({
+        familiar: $familiar`Machine Elf`,
+        bonuses: cupidBonus(),
+      }),
     tentacle: false, // Marked like this as 2 DMT fights get overriden by tentacles (could add +1 combat)
     combatCount: () => clamp(5 - get("_machineTunnelsAdv"), 0, 5),
   },
