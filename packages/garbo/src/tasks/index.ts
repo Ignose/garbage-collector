@@ -7,5 +7,6 @@ export { FreeFightQuest } from "./freeFight";
 export { PostFreeFightQuest } from "./postFreeFight";
 export { SetupTargetCopyQuest } from "./target";
 export { DailySeaQuest } from "./dailySea";
+export { CockroachSetup, CockroachFinish } from "./cockroach";
 export { PostQuest } from "./post";
 export { runGarboQuests, runSafeGarboQuests } from "./engine";

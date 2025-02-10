@@ -54,6 +54,7 @@ import {
   haveInCampground,
   JuneCleaver,
   maxBy,
+  realmAvailable,
   set,
   setCombatFlags,
   setDefaultMaximizeOptions,
@@ -86,12 +87,14 @@ import { yachtzeeChain } from "./yachtzee";
 import { garboAverageValue } from "./garboValue";
 import {
   BarfTurnQuests,
+  CockroachFinish,
+  CockroachSetup,
   PostQuest,
   runGarboQuests,
   SetupTargetCopyQuest,
 } from "./tasks";
-import { CockroachFinish, CockroachSetup } from "./tasks/cockroachPrep";
 import { getMonstersToBanish } from "./tasks/daily";
+import { doingGregFight, hasMonsterReplacers } from "./resources";
 
 // Max price for tickets. You should rethink whether Barf is the best place if they're this expensive.
 const TICKET_MAX_PRICE = 500000;
@@ -107,11 +110,13 @@ function ensureBarfAccess() {
 
 function defaultTarget() {
   // Can we account for re-entry if we only have certain amounts of copiers left in each of these?
+  // We need piraterealm if we're doing gregs of any sort; hasMonsterReplacers tells us if we're chewing extro
   if (
-    have($skill`Just the Facts`) &&
-    have($skill`Meteor Lore`) &&
-    have($item`Powerful Glove`) &&
-    (get("_prToday") || get("prAlways"))
+    !(doingGregFight() || hasMonsterReplacers()) ||
+    (realmAvailable("pirate") &&
+      (questStep("_questPirateRealm") <= 6 ||
+        (questStep("_questPirateRealm") === 7 &&
+          get("_lastPirateRealmIsland") === $location`Trash Island`)))
   ) {
     return $monster`cockroach`;
   }
