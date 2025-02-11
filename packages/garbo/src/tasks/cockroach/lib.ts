@@ -28,6 +28,8 @@ import { VALUABLE_MODIFIERS } from "../../potions";
 import { garboValue } from "../../garboValue";
 import { acquire } from "../../acquire";
 
+export let intendedBeatenUp = false;
+
 function asEffect(thing: Item | Effect): Effect {
   return thing instanceof Effect ? thing : effectModifier(thing, "Effect");
 }
@@ -141,6 +143,9 @@ function shouldRemove(effect: Effect) {
 
 // Just checking for the gummi effects for now, maybe can check other stuff later?
 export function checkAndFixOvercapStats(): void {
+  if(!have($effect`Beaten Up`)) {
+    intendedBeatenUp = false;
+  }
   if (debuffedEnough()) return;
 
   // Decorative fountain is both cheap and reusable for -30% muscle, but is not a potion
@@ -181,6 +186,10 @@ export function checkAndFixOvercapStats(): void {
         }
       }
     }
+  }
+
+  if(intendedBeatenUp === false && have($effect`Beaten Up`)) {
+    intendedBeatenUp = true;
   }
 
   if (!debuffedEnough()) {
