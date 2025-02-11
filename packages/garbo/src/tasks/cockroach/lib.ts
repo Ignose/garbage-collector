@@ -30,6 +30,10 @@ import { acquire } from "../../acquire";
 
 export let intendedBeatenUp = false;
 
+export function intendedBeatenUpCleanse() {
+  intendedBeatenUp = false;
+}
+
 function asEffect(thing: Item | Effect): Effect {
   return thing instanceof Effect ? thing : effectModifier(thing, "Effect");
 }
@@ -67,7 +71,7 @@ const effectiveDebuffQuantity = (
     (shrugging ? -1 : 1) *
       (getModifier(stat.toString(), effect) +
         // Eyepatch caps you at 30
-        (30 / 100) * getModifier(`${stat.toString()} Percent`, effect)),
+        (20 / 100) * getModifier(`${stat.toString()} Percent`, effect)),
     100 - myBuffedstat(stat),
     0,
   );

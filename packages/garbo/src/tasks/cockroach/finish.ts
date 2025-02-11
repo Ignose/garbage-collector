@@ -7,7 +7,7 @@ import { meatTargetOutfit } from "../../outfit";
 import { potionSetup } from "../../potions";
 import { copyTargetCount } from "../../target";
 import { GarboTask } from "../engine";
-import { checkAndFixOvercapStats } from "./lib";
+import { checkAndFixOvercapStats, intendedBeatenUpCleanse } from "./lib";
 import { toSkill, useSkill } from "kolmafia";
 
 export const CockroachFinish: Quest<GarboTask> = {
@@ -55,6 +55,7 @@ export const CockroachFinish: Quest<GarboTask> = {
       },
       choices: { 1353: 5 }, // Trash Island
       limit: { tries: 1 },
+      post: () => intendedBeatenUpCleanse(),
       spendsTurn: false,
       combat: new GarboStrategy(() =>
         Macro.abortWithMsg("Hit a combat while sailing the high seas!"),
