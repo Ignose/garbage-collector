@@ -12,7 +12,7 @@ import { toSkill, useSkill } from "kolmafia";
 
 export const CockroachFinish: Quest<GarboTask> = {
   name: "Setup Cockroach Target",
-  ready: () => get("pirateRealmUnlockedAnemometer"),
+  ready: () => get("pirateRealmUnlockedAnemometer") && questStep("_questPirateRealm") >= 5,
   completed: () => get("_lastPirateRealmIsland") === $location`Trash Island`,
   tasks: [
     {
