@@ -10,11 +10,13 @@ import {
   Stat,
   StatType,
   use,
+  useSkill,
 } from "kolmafia";
 import {
   $effect,
   $item,
   $items,
+  $skill,
   $stat,
   clamp,
   get,
@@ -31,6 +33,10 @@ import { acquire } from "../../acquire";
 export let intendedBeatenUp = false;
 
 export function intendedBeatenUpCleanse() {
+  if(have($effect`Beaten Up`)) {
+    if(have($skill`Tongue of the Walrus`)) useSkill($skill`Tongue of the Walrus`)
+      else uneffect($effect`Beaten Up`)
+  }
   intendedBeatenUp = false;
 }
 
