@@ -12,6 +12,7 @@ import { bonusGear } from "./dropsgear";
 import { cleaverCheck, validateGarbageFoldable } from "./lib";
 import { estimatedGarboTurns } from "../turns";
 import { garboValue } from "../garboValue";
+import { adventuresPerSweat } from "../resources/stillsuit";
 
 export type FreeFightOutfitMenuOptions = {
   location?: Location;
@@ -71,11 +72,19 @@ export function freeFightOutfit(
   bonusGear(mode).forEach((value, item) => outfit.addBonus(item, value));
 
   if (outfit.familiar !== $familiar`Grey Goose`) {
-    outfit.setBonus($item`tiny stillsuit`, (get("valueOfAdventure") * 3) ** 0.4);
+    outfit.setBonus(
+      $item`tiny stillsuit`,
+      get("valueOfAdventure") * 2 * adventuresPerSweat(),
+    );
   }
 
-  if (!ToyCupidBow.familiarsToday().includes(outfit.familiar) && estimatedGarboTurns() >= 5) {
-    outfit.setBonus($item`toy Cupid bow`, garboValue(familiarEquipment(outfit.familiar)) / 5)
+  if (!ToyCupidBow.familiarsToday().includes(outfit.familiar)) {
+    outfit.setBonus(
+      $item`toy Cupid bow`,
+      estimatedGarboTurns() >= 5
+        ? garboValue(familiarEquipment(outfit.familiar)) / 5
+        : 0,
+    );
   }
 
   if (
