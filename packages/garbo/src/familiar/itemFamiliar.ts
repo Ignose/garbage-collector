@@ -26,8 +26,8 @@ export function bestFairy(): Familiar {
     return $familiar`Trick-or-Treating Tot`;
   }
 
-  if ( have($familiar`Jill-of-All-Trades`)) {
-    return $familiar`Jill-of-All-Trades`
+  if (have($familiar`Jill-of-All-Trades`)) {
+    return $familiar`Jill-of-All-Trades`;
   }
 
   if (!bestNonCheerleaderFairy) {

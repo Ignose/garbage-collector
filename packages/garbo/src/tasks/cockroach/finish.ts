@@ -12,7 +12,8 @@ import { toSkill, useSkill } from "kolmafia";
 
 export const CockroachFinish: Quest<GarboTask> = {
   name: "Setup Cockroach Target",
-  ready: () => get("pirateRealmUnlockedAnemometer") && questStep("_questPirateRealm") >= 5,
+  ready: () =>
+    get("pirateRealmUnlockedAnemometer") && questStep("_questPirateRealm") >= 5,
   completed: () => get("_lastPirateRealmIsland") === $location`Trash Island`,
   tasks: [
     {
@@ -26,7 +27,7 @@ export const CockroachFinish: Quest<GarboTask> = {
         potionSetup(false);
         checkAndFixOvercapStats();
         $effects`Astral Shell, Ghostly Shell, Feeling Peaceful`.forEach((e) => {
-          useSkill(toSkill(e))
+          useSkill(toSkill(e));
         });
       },
       do: $location`Crab Island`,

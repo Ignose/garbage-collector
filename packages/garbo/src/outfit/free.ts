@@ -1,6 +1,14 @@
 import { Outfit, OutfitSpec } from "grimoire-kolmafia";
 import { familiarEquipment, Location } from "kolmafia";
-import { $familiar, $item, $items, get, Guzzlr, SourceTerminal, ToyCupidBow } from "libram";
+import {
+  $familiar,
+  $item,
+  $items,
+  get,
+  Guzzlr,
+  SourceTerminal,
+  ToyCupidBow,
+} from "libram";
 import { WanderDetails } from "garbo-lib";
 
 import { FamiliarMenuOptions, freeFightFamiliar } from "../familiar";

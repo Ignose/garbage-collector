@@ -1,5 +1,12 @@
 import { Quest } from "grimoire-kolmafia";
-import { inebrietyLimit, mallPrice, myInebriety, runChoice, Stat, visitUrl } from "kolmafia";
+import {
+  inebrietyLimit,
+  mallPrice,
+  myInebriety,
+  runChoice,
+  Stat,
+  visitUrl,
+} from "kolmafia";
 import { $item, $items, $location, get, have, questStep } from "libram";
 import { acquire } from "../../acquire";
 import { GarboStrategy, Macro } from "../../combat";
@@ -15,7 +22,8 @@ import {
 
 export const CockroachSetup: Quest<GarboTask> = {
   name: "Setup Cockroach Target",
-  ready: () => get("pirateRealmUnlockedAnemometer") && myInebriety() <= inebrietyLimit(),
+  ready: () =>
+    get("pirateRealmUnlockedAnemometer") && myInebriety() <= inebrietyLimit(),
   completed: () =>
     get("_lastPirateRealmIsland") === $location`Trash Island` ||
     (questStep("_questPirateRealm") === 5 &&
