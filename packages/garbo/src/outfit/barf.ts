@@ -9,6 +9,7 @@ import {
   myFamiliar,
   myFury,
   myInebriety,
+  print,
   retrieveItem,
   totalTurnsPlayed,
 } from "kolmafia";
@@ -165,6 +166,12 @@ export function computeBarfOutfit(
     outfit.equip($item`Kramco Sausage-o-Matic™`);
   }
 
+  outfit.bonuses = bonusGear(BonusEquipMode.BARF, !sim);
+
+  print(`${estimatedGarboTurns()}`);
+
+  print(`${garboValue(familiarEquipment(spec.familiar)) / 5}`);
+
   if (
     !sim &&
     !(ToyCupidBow.familiarsToday() as (Familiar | undefined)[]).includes(
@@ -179,7 +186,6 @@ export function computeBarfOutfit(
     );
   }
 
-  outfit.bonuses = bonusGear(BonusEquipMode.BARF, !sim);
   const bjornalike = bestBjornalike(outfit);
   if (bjornalike) {
     outfit.setBonus(bjornalike, bjornChoice.value);
