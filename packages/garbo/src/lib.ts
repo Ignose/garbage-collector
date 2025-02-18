@@ -65,6 +65,7 @@ import {
   $effect,
   $familiar,
   $item,
+  $items,
   $location,
   $monster,
   $skill,
@@ -1119,3 +1120,5 @@ export const valueDrops = (monster: Monster) =>
     !["c", "0", "p", "a"].includes(type) ? (garboValue(drop) * rate) / 100 : 0,
   );
 export const isFree = (monster: Monster) => monster.attributes.includes("FREE");
+
+export const unlimitedFreeRunList = $items`handful of split pea soup, tennis ball, Louder Than Bomb, divine champagne popper`;
