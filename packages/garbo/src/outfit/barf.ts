@@ -2,12 +2,14 @@ import { Outfit, OutfitSpec } from "grimoire-kolmafia";
 import {
   cliExecute,
   Familiar,
+  familiarEquipment,
   inebrietyLimit,
   Item,
   myClass,
   myFamiliar,
   myFury,
   myInebriety,
+  print,
   retrieveItem,
   totalTurnsPlayed,
 } from "kolmafia";
@@ -21,6 +23,7 @@ import {
   get,
   getKramcoWandererChance,
   have,
+  ToyCupidBow,
   undelay,
 } from "libram";
 import { barfFamiliar } from "../familiar";
@@ -34,6 +37,8 @@ import {
   modeValueOfMeat,
 } from "../lib";
 import { trackMarginalTurnExtraValue } from "../session";
+import { estimatedGarboTurns } from "../turns";
+import { garboValue } from "../garboValue";
 
 function chooseGun() {
   if (have($item`love`)) {
@@ -162,6 +167,25 @@ export function computeBarfOutfit(
   }
 
   outfit.bonuses = bonusGear(BonusEquipMode.BARF, !sim);
+
+  print(`${estimatedGarboTurns()}`);
+
+  print(`${garboValue(familiarEquipment(spec.familiar)) / 5}`);
+
+  if (
+    !sim &&
+    !(ToyCupidBow.familiarsToday() as (Familiar | undefined)[]).includes(
+      outfit.familiar,
+    )
+  ) {
+    outfit.setBonus(
+      $item`toy Cupid bow`,
+      estimatedGarboTurns() >= 5
+        ? garboValue(familiarEquipment(spec.familiar)) / 5
+        : 0,
+    );
+  }
+
   const bjornalike = bestBjornalike(outfit);
   if (bjornalike) {
     outfit.setBonus(bjornalike, bjornChoice.value);
