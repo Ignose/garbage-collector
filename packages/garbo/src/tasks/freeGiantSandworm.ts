@@ -59,10 +59,15 @@ function sandwormSpec(spec: OutfitSpec = {}): OutfitSpec {
   if (familiar === $familiar`Reagnimated Gnome`) {
     copy.equip?.push($item`gnomish housemaid's kgnee`);
   }
-  if (familiar === $familiar`Jill-of-All-Trades`) {
-    copy.equip?.push($item`LED candle`);
-    copy.modes = { ...copy.modes, jillcandle: "disco" };
+  if(have($item`toy Cupid bow`)) {
+    copy.equip?.push($item`toy Cupid bow`);
+  } else {
+    if (familiar === $familiar`Jill-of-All-Trades`) {
+      copy.equip?.push($item`LED candle`);
+      copy.modes = { ...copy.modes, jillcandle: "disco" };
+    }
   }
+
   copy.equip = [...new Set(copy.equip)]; // Prune doubled-up stuff
   return copy;
 }

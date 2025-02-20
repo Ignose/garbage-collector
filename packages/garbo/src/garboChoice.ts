@@ -7,6 +7,9 @@ export function main(choiceNumber: number) {
   if (choiceNumber === 1525) {
     runChoice(highestPriorityOption(options));
   }
+  if (choiceNumber === 1355) {
+    runChoice(1);
+  }
   if (choiceNumber === 1360) {
     while (get("_pirateRealmGrub") < 10 && get("_pirateRealmGold") > 10) {
       runChoice(1);
