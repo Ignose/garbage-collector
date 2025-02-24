@@ -13,6 +13,7 @@ import {
   have,
   maxBy,
   set,
+  ToyCupidBow,
 } from "libram";
 import { menu } from "./freeFightFamiliar";
 
@@ -21,7 +22,8 @@ let bestNonCheerleaderFairy: Familiar;
 export function bestFairy(): Familiar {
   if (
     have($familiar`Trick-or-Treating Tot`) &&
-    have($item`li'l ninja costume`)
+    have($item`li'l ninja costume`) &&
+    !ToyCupidBow.have()
   ) {
     return $familiar`Trick-or-Treating Tot`;
   }

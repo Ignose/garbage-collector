@@ -38,7 +38,7 @@ import { estimatedGarboTurns } from "../turns";
 import { getAllDrops } from "./dropFamiliars";
 import { getExperienceFamiliarLimit } from "./experienceFamiliars";
 import { getAllJellyfishDrops, menu } from "./freeFightFamiliar";
-import { GeneralFamiliar, timeToMeatify, turnsAvailable } from "./lib";
+import { GeneralFamiliar, getUsedTcbFamiliars, tcbValue, timeToMeatify, turnsAvailable } from "./lib";
 import { meatFamiliar } from "./meatFamiliar";
 import { garboValue } from "../garboValue";
 import { globalOptions } from "../config";
@@ -86,7 +86,8 @@ const outfitCacheKey = (f: Familiar) =>
   SPECIAL_FAMILIARS_FOR_CACHING.has(f) ? f : findLeprechaunMultiplier(f);
 
 function getCachedOutfitValues(fam: Familiar) {
-  const currentValue = outfitCache.get(outfitCacheKey(fam));
+  const cacheKey = outfitCacheKey(fam);
+  const currentValue = outfitCache.get(cacheKey);
   if (currentValue) return currentValue;
 
   const current = myFamiliar();
@@ -95,7 +96,7 @@ function getCachedOutfitValues(fam: Familiar) {
     computeBarfOutfit(
       {
         familiar: fam,
-        avoid: $items`Kramco Sausage-o-Matic™, cursed magnifying glass, protonic accelerator pack, "I Voted!" sticker, li'l pirate costume, bag of many confections, bat wings`,
+        avoid: $items`Kramco Sausage-o-Matic™, cursed magnifying glass, protonic accelerator pack, "I Voted!" sticker, li'l pirate costume, bag of many confections, bat wings, toy Cupid bow`,
       },
       true,
     ).dress();
@@ -110,7 +111,7 @@ function getCachedOutfitValues(fam: Familiar) {
       famexp: sum(outfit, (eq: Item) => getModifier("Familiar Experience", eq)),
       bonus: sum(outfit, (eq: Item) => bonuses.get(eq) ?? 0),
     };
-    outfitCache.set(outfitCacheKey(fam), values);
+    outfitCache.set(cacheKey, values);
     return values;
   } finally {
     useFamiliar(current);
@@ -121,6 +122,7 @@ function getCachedOutfitValues(fam: Familiar) {
 type MarginalFamiliar = GeneralFamiliar & {
   outfitWeight: number;
   outfitValue: number;
+  bonusTurns?: number;
 };
 
 const nonOutfitWeightBonus = () =>
@@ -168,20 +170,22 @@ function totalFamiliarValue({
 function turnsNeededFromBaseline(
   baselineToCompareAgainst: MarginalFamiliar,
 ): (option: MarginalFamiliar) => number {
-  return ({ familiar, limit, outfitValue }: MarginalFamiliar) => {
+  return ({ familiar, limit, outfitValue, bonusTurns }: MarginalFamiliar) => {
     switch (limit) {
       case "drops":
-        return sum(
-          getAllDrops(familiar).filter(
-            ({ expectedValue }) =>
-              outfitValue + familiarAbilityValue(familiar) + expectedValue >
-              totalFamiliarValue(baselineToCompareAgainst),
-          ),
-          ({ expectedTurns }) => expectedTurns,
+        return (
+          sum(
+            getAllDrops(familiar).filter(
+              ({ expectedValue }) =>
+                outfitValue + familiarAbilityValue(familiar) + expectedValue >
+                totalFamiliarValue(baselineToCompareAgainst),
+            ),
+            ({ expectedTurns }) => expectedTurns,
+          ) - (bonusTurns ?? 0)
         );
 
       case "experience":
-        return getExperienceFamiliarLimit(familiar);
+        return getExperienceFamiliarLimit(familiar) - (bonusTurns ?? 0);
 
       case "none":
         return 0;
@@ -190,11 +194,13 @@ function turnsNeededFromBaseline(
         return ToyCupidBow.turnsLeft(familiar);
 
       case "special":
-        return getSpecialFamiliarLimit({
-          familiar,
-          outfitValue,
-          baselineToCompareAgainst,
-        });
+        return (
+          getSpecialFamiliarLimit({
+            familiar,
+            outfitValue,
+            baselineToCompareAgainst,
+          }) - (bonusTurns ?? 0)
+        );
     }
   };
 }
@@ -227,7 +233,10 @@ function extraValue(
   return Math.max(targetValue - Math.max(meatFamiliarValue, jellyfishValue), 0);
 }
 
-export function barfFamiliar(): { familiar: Familiar; extraValue: number } {
+export function barfFamiliar(equipmentForced: boolean): {
+  familiar: Familiar;
+  extraValue: number;
+} {
   if (timeToMeatify()) {
     return { familiar: $familiar`Grey Goose`, extraValue: 0 };
   }
@@ -238,6 +247,8 @@ export function barfFamiliar(): { familiar: Familiar; extraValue: number } {
 
   const meat = meatFamiliar();
 
+  const usedTcbFamiliars = getUsedTcbFamiliars();
+
   const fullMenu = menu({
     canChooseMacro: true,
     location: globalOptions.penguin
@@ -245,7 +256,38 @@ export function barfFamiliar(): { familiar: Familiar; extraValue: number } {
       : $location`Barf Mountain`,
     includeExperienceFamiliars: true,
     mode: "barf",
-  }).map(calculateOutfitValue);
+  }).flatMap((generalFamiliar) => {
+    // Here we do two things:
+    // * transform `GeneralFamiliar`s into `MarginalFamiliar`s, which carry with them the total value of the outfit you'd wear
+    // * "double up" on familiars for which the toy Cupid bow is available
+    const normal = calculateOutfitValue(generalFamiliar);
+    if (
+      normal.limit === "cupid" || // If we're already dealing with one of our generated toy cupid bow picks
+      equipmentForced || // If we're unable to equip the toy cupid bow
+      !ToyCupidBow.have() || // If we don't have the toy cupid bow
+      usedTcbFamiliars.has(generalFamiliar.familiar) // If we've already gotten the thing
+    ) {
+      return normal;
+    }
+    const tcb = calculateOutfitValue({
+      ...generalFamiliar,
+      expectedValue:
+        generalFamiliar.expectedValue +
+        tcbValue(generalFamiliar.familiar, usedTcbFamiliars, false, true),
+      limit: "cupid",
+    });
+    if (tcb.expectedValue >= normal.expectedValue) {
+      return [
+        tcb,
+        {
+          ...normal,
+          // Account for the already-burned TCB turns when calculating the limit for the "normal" entry for the familiar
+          bonusTurns: ToyCupidBow.turnsLeft(generalFamiliar.familiar),
+        },
+      ];
+    }
+    return normal;
+  });
 
   const meatFamiliarEntry = fullMenu.find(({ familiar }) => familiar === meat);
 
@@ -258,25 +300,33 @@ export function barfFamiliar(): { familiar: Familiar; extraValue: number } {
     (f) => totalFamiliarValue(f) > meatFamiliarValue,
   );
 
-  if (viableMenu.every(({ limit }) => limit !== "none")) {
-    const turnsNeeded = sum(
-      viableMenu,
-      turnsNeededFromBaseline(meatFamiliarEntry),
-    );
-
-    if (turnsNeeded < turnsAvailable()) {
-      const shrubAvailable = viableMenu.some(
-        ({ familiar }) => familiar === $familiar`Crimbo Shrub`,
-      );
-      return {
-        familiar: shrubAvailable ? $familiar`Crimbo Shrub` : meat,
-        extraValue: 0,
-      };
-    }
-  }
-
   if (viableMenu.length === 0) {
     return { familiar: meat, extraValue: 0 };
+  }
+
+  // Determine the baseline for how good a familiar needs to be to be run--either an unlimited familiar, or our meat familiar
+  const unlimitedCruisingFamiliars = viableMenu.filter(
+    ({ limit }) => limit === "none",
+  );
+  const cruisingFamiliar = unlimitedCruisingFamiliars.length
+    ? maxBy(unlimitedCruisingFamiliars, totalFamiliarValue)
+    : meatFamiliarEntry;
+
+  const turnsNeeded = sum(
+    viableMenu,
+    turnsNeededFromBaseline(cruisingFamiliar),
+  );
+
+  // If there aren't enough turns left in the day to get value out of fams that aren't our "cruising" familiar, just return that
+  // With a special exception for crimbo shrub
+  if (turnsNeeded < turnsAvailable()) {
+    const shrubAvailable = viableMenu.some(
+      ({ familiar }) => familiar === $familiar`Crimbo Shrub`,
+    );
+    return {
+      familiar: shrubAvailable ? $familiar`Crimbo Shrub` : meat,
+      extraValue: 0,
+    };
   }
 
   const best = maxBy(viableMenu, totalFamiliarValue);
