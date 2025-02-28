@@ -2,12 +2,14 @@ import { Outfit, OutfitSpec } from "grimoire-kolmafia";
 import {
   cliExecute,
   Familiar,
+  familiarEquipment,
   inebrietyLimit,
   Item,
   myClass,
   myFamiliar,
   myFury,
   myInebriety,
+  print,
   retrieveItem,
   toSlot,
   totalTurnsPlayed,
@@ -23,6 +25,7 @@ import {
   get,
   getKramcoWandererChance,
   have,
+  ToyCupidBow,
   undelay,
 } from "libram";
 import { barfFamiliar } from "../familiar";
@@ -36,6 +39,8 @@ import {
   modeValueOfMeat,
 } from "../lib";
 import { trackMarginalTurnExtraValue } from "../session";
+import { estimatedGarboTurns } from "../turns";
+import { garboValue } from "../garboValue";
 
 function chooseGun() {
   if (have($item`love`)) {

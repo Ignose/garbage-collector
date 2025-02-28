@@ -44,6 +44,11 @@ function logTargetFight(encounterType: string) {
  * Runs extra logic before executing all tasks.
  */
 export class BaseGarboEngine extends Engine<never, GarboTask> {
+  static defaultSettings = {
+    ...Engine.defaultSettings,
+    choiceAdventureScript: "garbo_choice.js",
+  };
+
   available(task: GarboTask): boolean {
     safeInterrupt();
     const taskSober = undelay(task.sobriety);
@@ -109,6 +114,11 @@ export class BaseGarboEngine extends Engine<never, GarboTask> {
  * Treats soft limits as tasks that should be skipped, with a default max of one attempt for any task.
  */
 export class SafeGarboEngine extends BaseGarboEngine {
+  static defaultSettings = {
+    ...Engine.defaultSettings,
+    choiceAdventureScript: "garbo_choice.js",
+  };
+
   constructor(tasks: GarboTask[]) {
     const options = new EngineOptions();
     options.default_task_options = { limit: { skip: 1 } };

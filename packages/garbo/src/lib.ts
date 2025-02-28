@@ -102,6 +102,7 @@ import { acquire } from "./acquire";
 import { globalOptions } from "./config";
 import { garboAverageValue, garboValue } from "./garboValue";
 import { Outfit, OutfitSpec } from "grimoire-kolmafia";
+import { intendedBeatenUp } from "./tasks/cockroach/lib";
 
 export const eventLog: {
   initialCopyTargetsFought: number;
@@ -159,7 +160,8 @@ const songboomMeat = () =>
     : 0;
 
 // all tourists have a basemeat of 250
-export const baseMeat = () => 250 + songboomMeat();
+export const baseMeat = () =>
+  (globalOptions.penguin ? 200 : 250) + songboomMeat();
 export const targetMeat = () =>
   (globalOptions.target.minMeat + globalOptions.target.maxMeat) / 2 +
   songboomMeat();
@@ -467,7 +469,7 @@ export function safeRestore(): void {
       "You lost your most recent combat! Check to make sure everything is alright before rerunning.",
     );
   }
-  if (have($effect`Beaten Up`)) {
+  if (have($effect`Beaten Up`) && !intendedBeatenUp) {
     if (
       lastMonster() ===
       $monster`Sssshhsssblllrrggghsssssggggrrgglsssshhssslblgl`

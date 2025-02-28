@@ -128,6 +128,12 @@ You can use multiple options in conjunction, e.g. "garbo nobarf ascend"',
       help: "Use instant karma as part of diet",
       default: false,
     }),
+    penguin: Args.flag({
+      setting: "garbo_penguin",
+      help: "**WARNING: Experimental** Farm Copperhead Club Penguins instead of Barf Mountain - requires Snapper and a load of banishes",
+      default: false,
+      hidden: true,
+    }),
     version: Args.flag({
       setting: "",
       help: "Print the current version and exit.",
