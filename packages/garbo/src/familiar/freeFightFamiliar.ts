@@ -33,7 +33,7 @@ import { meatFamiliar } from "./meatFamiliar";
 import { gooseDroneEligible, valueDrops } from "../lib";
 import { globalOptions } from "../config";
 import { copyTargetCount } from "../target";
-import { getToyCupidBowFamiliars } from "./toyCupidBowFamiliars";
+import { getToyCupidBowFamiliars } from "./toyCupidBowFamiliar";
 
 export type FamiliarMenuOptions = Partial<{
   canChooseMacro: boolean;

@@ -38,7 +38,13 @@ import { estimatedGarboTurns } from "../turns";
 import { getAllDrops } from "./dropFamiliars";
 import { getExperienceFamiliarLimit } from "./experienceFamiliars";
 import { getAllJellyfishDrops, menu } from "./freeFightFamiliar";
-import { GeneralFamiliar, getUsedTcbFamiliars, tcbValue, timeToMeatify, turnsAvailable } from "./lib";
+import {
+  GeneralFamiliar,
+  getUsedTcbFamiliars,
+  tcbValue,
+  timeToMeatify,
+  turnsAvailable,
+} from "./lib";
 import { meatFamiliar } from "./meatFamiliar";
 import { garboValue } from "../garboValue";
 import { globalOptions } from "../config";
@@ -62,13 +68,16 @@ const SPECIAL_FAMILIARS_FOR_CACHING = new Map<
   { equip?: Item; extraValue?: (outfit: CachedOutfit) => number }
 >([
   [
+    // Derives its value from famexp and requires _much_ more famexp than other exp familiars
     $familiar`Chest Mimic`,
     {
       extraValue: ({ famexp }) =>
         (famexp * MEAT_TARGET_MULTIPLIER() * get("valueOfAdventure")) / 50,
     },
   ],
+  // Uniquely required to equip its fam equip to meaningfully have value
   [$familiar`Jill-of-All-Trades`, { equip: $item`LED candle` }],
+  // Derives its value irregularly from +famweight
   [
     $familiar`Mini Kiwi`,
     {
@@ -120,8 +129,11 @@ function getCachedOutfitValues(fam: Familiar) {
 }
 
 type MarginalFamiliar = GeneralFamiliar & {
+  // How much weight do we get on our outfit when we run this familiar?
   outfitWeight: number;
+  // What's the total non-familiar value of this outfit?
   outfitValue: number;
+  // How many extra turns do we expect to have racked up on this familiar by the time we run it?
   bonusTurns?: number;
 };
 
@@ -180,7 +192,7 @@ function turnsNeededFromBaseline(
                 outfitValue + familiarAbilityValue(familiar) + expectedValue >
                 totalFamiliarValue(baselineToCompareAgainst),
             ),
-            ({ expectedTurns }) => expectedTurns,
+            "expectedTurns",
           ) - (bonusTurns ?? 0)
         );
 
@@ -191,7 +203,7 @@ function turnsNeededFromBaseline(
         return 0;
 
       case "cupid":
-        return ToyCupidBow.turnsLeft(familiar);
+        return ToyCupidBow.turnsLeft(familiar) - (bonusTurns ?? 0);
 
       case "special":
         return (
@@ -237,10 +249,12 @@ export function barfFamiliar(equipmentForced: boolean): {
   familiar: Familiar;
   extraValue: number;
 } {
+  // Meatify is basically always the most valuable thing we can do, to the point of not even counting as a marginal familiar
   if (timeToMeatify()) {
     return { familiar: $familiar`Grey Goose`, extraValue: 0 };
   }
 
+  // Luddite mode users get off here
   if (get("garbo_IgnoreMarginalFamiliars", false)) {
     return { familiar: meatFamiliar(), extraValue: 0 };
   }
@@ -296,6 +310,8 @@ export function barfFamiliar(equipmentForced: boolean): {
   }
 
   const meatFamiliarValue = totalFamiliarValue(meatFamiliarEntry);
+  // Ultimately, using our meat familiar all day is the default behavior
+  // so any familiar worse than that isn't worth spending any time thinking about
   const viableMenu = fullMenu.filter(
     (f) => totalFamiliarValue(f) > meatFamiliarValue,
   );
@@ -379,7 +395,7 @@ function getSpecialFamiliarLimit({
             outfitValue + familiarAbilityValue(familiar) + expectedValue >
             totalFamiliarValue(baselineToCompareAgainst),
         ),
-        ({ turnsAtValue }) => turnsAtValue,
+        "turnsAtValue",
       );
 
     case $familiar`Crimbo Shrub`:

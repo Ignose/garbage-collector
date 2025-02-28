@@ -30,7 +30,7 @@ import {
 } from "libram";
 import { barfFamiliar } from "../familiar";
 import { chooseBjorn } from "./bjorn";
-import { bonusGear } from "./dropsgear";
+import { bonusGear, toyCupidBow } from "./dropsgear";
 import { bestBjornalike, cleaverCheck, validateGarbageFoldable } from "./lib";
 import {
   BonusEquipMode,
@@ -121,6 +121,8 @@ export function computeBarfOutfit(
     new Error(`Failed to construct outfit from spec ${JSON.stringify(spec)}!`),
   );
 
+  outfit.addBonuses(bonusGear(BonusEquipMode.BARF, !sim));
+
   if (outfit.familiar === $familiar`Jill-of-All-Trades`) {
     outfit.equip($item`LED candle`);
     outfit.setModes({ jillcandle: "ultraviolet" });
@@ -168,22 +170,8 @@ export function computeBarfOutfit(
     outfit.equip($item`Kramco Sausage-o-Matic™`);
   }
 
-  outfit.bonuses = bonusGear(BonusEquipMode.BARF, !sim);
-
-  print(`${estimatedGarboTurns()}`);
-
-  print(`${garboValue(familiarEquipment(spec.familiar)) / 5}`);
-
-  if (
-    !sim &&
-    !ToyCupidBow.familiarsToday().includes(spec.familiar) &&
-    estimatedGarboTurns() >= 5
-  ) {
-    outfit.setBonus(
-      $item`toy Cupid bow`,
-      garboValue(familiarEquipment(spec.familiar)) /
-        ToyCupidBow.turnsLeft(spec.familiar),
-    );
+  if (!sim) {
+    outfit.addBonuses(toyCupidBow(spec.familiar));
   }
 
   const bjornalike = bestBjornalike(outfit);
