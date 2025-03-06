@@ -1,24 +1,10 @@
 import { Familiar, familiarEquipment } from "kolmafia";
-import {
-  $familiar,
-  findLeprechaunMultiplier,
-  get,
-  have,
-  ToyCupidBow,
-} from "libram";
+import { findLeprechaunMultiplier, have, ToyCupidBow } from "libram";
 import { garboValue } from "../garboValue";
-import {
-  familiarEquipmentValue,
-  GeneralFamiliar,
-  getUsedTcbFamiliars,
-} from "./lib";
+import { GeneralFamiliar, getUsedTcbFamiliars } from "./lib";
 import { estimatedGarboTurns } from "../turns";
-import { globalOptions } from "../config";
-import { propertyManager } from "../lib";
 
 export function getToyCupidBowFamiliars(): GeneralFamiliar[] {
-  if (!ToyCupidBow.have()) return [];
-
   const usedTcbFamiliars = getUsedTcbFamiliars();
 
   // If there aren't enough turns to run someone to completion, only check for the current cupid familiar
@@ -46,19 +32,12 @@ export function getToyCupidBowFamiliars(): GeneralFamiliar[] {
   for (const familiar of Familiar.all()) {
     if (!have(familiar)) continue;
     if (usedTcbFamiliars.has(familiar)) continue;
-    if (!familiarEquipment(familiar).tradeable) continue;
-    if (familiar === $familiar`Mini-Adventurer` && !get("miniAdvClass")) {
-      if (globalOptions.ascend) {
-        propertyManager.setChoice(768, 4);
-      } // Littlest identity crisis, sauceror
-      else continue;
-    }
-    if (familiar === $familiar`Doppelshifter`) continue;
-
+    const equipment = familiarEquipment(familiar);
+    if (!equipment.tradeable) continue;
 
     const leprechaunMultiplier = findLeprechaunMultiplier(familiar);
     const expectedValue =
-      familiarEquipmentValue(familiar) / ToyCupidBow.turnsLeft(familiar);
+      garboValue(equipment) / ToyCupidBow.turnsLeft(familiar);
 
     const currentBestValue =
       bestFamiliarsByLeprechaunMultiplier.get(leprechaunMultiplier)
