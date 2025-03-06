@@ -53,6 +53,8 @@ export function getToyCupidBowFamiliars(): GeneralFamiliar[] {
       } // Littlest identity crisis, sauceror
       else continue;
     }
+    if (familiar === $familiar`Doppelshifter`) continue;
+
 
     const leprechaunMultiplier = findLeprechaunMultiplier(familiar);
     const expectedValue =
