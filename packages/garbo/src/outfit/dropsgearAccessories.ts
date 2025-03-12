@@ -62,7 +62,12 @@ function luckyGoldRing(mode: BonusEquipMode) {
   }
 
   const dropValues = luckyGoldRingDropValues(
-    !(mode === BonusEquipMode.MEAT_TARGET && !globalOptions.nobarf), // Volcoino drops once per day, only wear during meat targets if nobarf
+    !(
+      mode === BonusEquipMode.MEAT_TARGET &&
+      (!globalOptions.nobarf ||
+        (globalOptions.penguin &&
+          !(get("_stenchAirportToday") || get("stenchAirportAlways"))))
+    ), // Volcoino drops once per day, only wear during meat targets if nobarf
     itemAmount($item`Freddy Kruegerand`) > 0,
   );
 
@@ -143,7 +148,12 @@ export function usingThumbRing(): boolean {
     const gear = bonusAccessories(BonusEquipMode.BARF);
     const accessoryBonuses = [...gear.entries()].filter(([item]) => have(item));
 
-    setLocation($location`Barf Mountain`);
+    if (globalOptions.penguin) {
+      setLocation($location`The Copperhead Club`);
+    } else {
+      setLocation($location`Barf Mountain`);
+    }
+
     const meatAccessories = Item.all()
       .filter(
         (item) =>

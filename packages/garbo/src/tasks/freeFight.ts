@@ -17,6 +17,7 @@ import {
   itemAmount,
   itemDropsArray,
   itemType,
+  Location,
   mallPrice,
   Monster,
   myBuffedstat,
@@ -86,6 +87,11 @@ export type GarboFreeFightTask = Extract<
   combatCount: () => number;
   tentacle: boolean; // if a tentacle fight can follow
 };
+
+function cupidBonus() {
+  const toyCupidValue = garboValue($item`self-dribbling basketball`) / 5;
+  return new Map([[$item`toy Cupid bow`, toyCupidValue]]);
+}
 
 const DEFAULT_FREE_FIGHT_TASK = {
   // GarboTask

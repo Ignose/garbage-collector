@@ -19,9 +19,11 @@ import {
   Item,
   itemAmount,
   mallPrice,
+  Monster,
   myAscensions,
   myClass,
   myDaycount,
+  myFury,
   myHash,
   myHp,
   myInebriety,
@@ -33,9 +35,11 @@ import {
   restoreHp,
   retrieveItem,
   runChoice,
+  toInt,
   toSlot,
   toUrl,
   use,
+  useFamiliar,
   visitUrl,
   votingBoothInitiatives,
   wait,
@@ -47,12 +51,15 @@ import {
   $items,
   $location,
   $monster,
+  $monsters,
+  $phylum,
   $skill,
   $slot,
   BeachComb,
   Clan,
   findLeprechaunMultiplier,
   get,
+  getBanishedMonsters,
   getModifier,
   getTodaysHolidayWanderers,
   have,
@@ -60,6 +67,7 @@ import {
   Pantogram,
   questStep,
   realmAvailable,
+  Snapper,
   SongBoom,
   SourceTerminal,
   sumNumbers,
@@ -72,7 +80,7 @@ import { globalOptions } from "../config";
 import { copyTargetCount } from "../target";
 import { meatFamiliar } from "../familiar";
 import { estimatedTentacles } from "../fights";
-import { baseMeat, HIGHLIGHT, targetMeat } from "../lib";
+import { baseMeat, HIGHLIGHT, safeRestore, targetMeat } from "../lib";
 import { garboValue } from "../garboValue";
 import { digitizedMonstersRemaining, estimatedGarboTurns } from "../turns";
 import { GarboTask } from "./engine";
@@ -91,6 +99,7 @@ const retrieveItems = $items`Half a Purse, seal tooth, The Jokester's gun`;
 
 let latteRefreshed = false;
 let snojoConfigured = false;
+let iceHouse = false;
 
 // For this valuation, we are using the rough approximated value of different
 //   voting initiatives. They are relatively straghtforward:
@@ -848,9 +857,114 @@ const DailyTasks: GarboTask[] = [
     },
     spendsTurn: false,
   },
+  {
+    name: "Check Ice House",
+    ready: () => globalOptions.penguin,
+    completed: () => iceHouse,
+    do: () => {
+      visitUrl("museum.php?action=icehouse");
+      visitUrl("main.php");
+      iceHouse = true;
+    },
+    spendsTurn: false,
+  },
+  {
+    name: "Set up Penguin Banishes",
+    ready: () => globalOptions.penguin,
+    completed: () => getMonstersToBanish().length === 0,
+    do: () => $location`The Copperhead Club`,
+    prepare: () => {
+      if (
+        (get("_monkeyPawWishesUsed") > 0 ||
+          !have($item`cursed monkey's paw`)) &&
+        !(
+          getBanishedMonsters().get($item`ice house`) ===
+          $monster`Copperhead Club bartender`
+        )
+      ) {
+        if (!have($familiar`Nanorhino`) && have($familiar`Comma Chameleon`)) {
+          if (
+            mallPrice($item`pocket wish`) >
+            mallPrice($item`nanorhino credit card`)
+          ) {
+            acquire(1, $item`nanorhino credit card`, 50000);
+            useFamiliar($familiar`Comma Chameleon`);
+            visitUrl(
+              `inv_equip.php?which=2&action=equip&whichitem=${toInt(
+                $item`nanorhino credit card`,
+              )}&pwd`,
+            );
+          } else {
+            acquire(1, $item`pocket wish`, 50000);
+            cliExecute(`genie effect Nanobrawny`);
+          }
+        }
+      }
+      retrieveItem($item`human musk`);
+      if (mallPrice($item`shadow brick`) < get("valueOfAdventure")) {
+        retrieveItem($item`shadow brick`, 1);
+      }
+      safeRestore();
+    },
+    outfit: {
+      familiar: have($familiar`Nanorhino`)
+        ? $familiar`Nanorhino`
+        : get("commaFamiliar") === $familiar`Nanorhino`
+          ? $familiar`Comma Chameleon`
+          : Snapper.getTrackedPhylum() === $phylum`Dude`
+            ? $familiar`Red-Nosed Snapper`
+            : undefined,
+      equip: $items`cursed monkey's paw, spring shoes, seal-clubbing club, Greatest American Pants`,
+    },
+    combat: new GarboStrategy(() => {
+      return Macro.externalIf(
+        myFury() < 5,
+        Macro.if_(
+          $monster`fan dancer`,
+          Macro.tryItem($item`shadow brick`).skill(
+            $skill`Lunging Thrust-Smack`,
+          ),
+        ),
+        Macro.if_($monster`fan dancer`, Macro.skill($skill`Batter Up!`)),
+      )
+        .if_(
+          $monster`Copperhead Club bartender`,
+          Macro.trySkill($skill`Monkey Slap`)
+            .trySkill($skill`Unleash Nanites`)
+            .tryItem($item`shadow brick`)
+            .runaway(),
+        )
+        .if_(
+          $monster`ninja dressed as a waiter`,
+          Macro.skill($skill`Spring Kick`)
+            .trySkill($skill`Spring Away`)
+            .runaway(),
+        )
+        .if_($monster`waiter dressed as a ninja`, Macro.item($item`human musk`))
+        .if_($monster`Mob Penguin Capo`, Macro.runaway());
+    }),
+    post: (): void => {
+      if (have($effect`Beaten Up`)) {
+        uneffect($effect`Beaten Up`);
+      }
+      if (myHp() < myMaxhp() * 0.5) {
+        restoreHp(myMaxhp() * 0.9);
+      }
+    },
+    spendsTurn: true,
+    limit: { tries: 15 },
+  },
 ];
 
 export const DailyQuest: Quest<GarboTask> = {
   name: "Daily",
   tasks: DailyTasks,
 };
+
+const monsters = $monsters`Copperhead Club bartender, fan dancer, ninja dressed as a waiter, waiter dressed as a ninja`;
+
+export function getMonstersToBanish(): Monster[] {
+  const banishedMonsters = getBanishedMonsters();
+  const alreadyBanished = Array.from(banishedMonsters.values());
+  return monsters.filter((monster) => !alreadyBanished.includes(monster));
+}

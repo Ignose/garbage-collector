@@ -709,6 +709,22 @@ const DailyItemTasks: GarboTask[] = [
     completed: () => !AprilingBandHelmet.canPlay($item`Apriling band piccolo`),
     spendsTurn: false,
   },
+  {
+    name: "Candy Deviler",
+    ready: () => have($item`candy egg deviler`),
+    completed: () => get("_candyEggsDeviled") >= 3,
+    do: () => {
+      const bestCandyArray = Item.all().filter((i) => i.candy && i.tradeable);
+      const bestCandy = maxBy(bestCandyArray, mallPrice, true);
+      visitUrl(`inventory.php?action=eggdevil&pwd`);
+      let eggsDeviled = get("_candyEggsDeviled");
+      while (eggsDeviled < 3) {
+        visitUrl(`choice.php?a=${bestCandy}&whichchoice=1544&option=1&pwd`);
+        eggsDeviled++;
+      }
+    },
+    spendsTurn: false,
+  },
   mayamCalendarSummon,
   {
     name: "Devil Cheapest Candy",
