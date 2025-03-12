@@ -55,7 +55,6 @@ export function getToyCupidBowFamiliars(): GeneralFamiliar[] {
     }
     if (familiar === $familiar`Doppelshifter`) continue;
 
-
     const leprechaunMultiplier = findLeprechaunMultiplier(familiar);
     const expectedValue =
       familiarEquipmentValue(familiar) / ToyCupidBow.turnsLeft(familiar);
