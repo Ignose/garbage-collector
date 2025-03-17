@@ -17,7 +17,6 @@ import {
   itemAmount,
   itemDropsArray,
   itemType,
-  Location,
   mallPrice,
   Monster,
   myBuffedstat,
@@ -27,11 +26,13 @@ import {
   myMaxhp,
   mySoulsauce,
   numericModifier,
+  refreshStatus,
   restoreHp,
   retrieveItem,
   runChoice,
   runCombat,
   Skill,
+  toInt,
   use,
   useSkill,
   visitUrl,
@@ -87,11 +88,6 @@ export type GarboFreeFightTask = Extract<
   combatCount: () => number;
   tentacle: boolean; // if a tentacle fight can follow
 };
-
-function cupidBonus() {
-  const toyCupidValue = garboValue($item`self-dribbling basketball`) / 5;
-  return new Map([[$item`toy Cupid bow`, toyCupidValue]]);
-}
 
 const DEFAULT_FREE_FIGHT_TASK = {
   // GarboTask
@@ -674,12 +670,16 @@ const FreeFightTasks: GarboFreeFightTask[] = [
     prepare: () => {
       if (myFamiliar() === $familiar`Comma Chameleon`) {
         if (CommaChameleon.currentFamiliar() !== $familiar`Machine Elf`) {
-          acquire(1, $item`self-dribbling basketball`);
+          acquire(1, $item`self-dribbling basketball`, 10000);
           CommaChameleon.transform($familiar`Machine Elf`);
+          visitUrl(
+            `inv_equip.php?which=2&action=equip&whichitem=${toInt($item`self-dribbling basketball`)}&pwd`,
+          );
+          refreshStatus();
         }
 
         if (!canAdventure($location`The Deep Machine Tunnels`)) {
-          acquire(1, $item`Deep Machine Tunnels snowglobe`);
+          acquire(1, $item`Deep Machine Tunnels snowglobe`, 2000);
           use($item`Deep Machine Tunnels snowglobe`);
         }
       }

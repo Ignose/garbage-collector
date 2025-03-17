@@ -840,10 +840,10 @@ interface DietPlanner {
   (menu: MenuItem<Note>[]): Diet<Note>;
 }
 function balanceMenu(
+  baseTargets: number,
   baseMenu: MenuItem<Note>[],
   dietPlanner: DietPlanner,
 ): MenuItem<Note>[] {
-  const baseTargets = targettingMeat() ? copyTargetCount() : 0;
   function rebalance(
     menu: MenuItem<Note>[],
     iterations: number,
@@ -878,7 +878,7 @@ export function computeDiet(): {
   sweatpants: () => Diet<Note>;
 } {
   // Handle spleen manually, as the diet planner doesn't support synth. Only fill food and booze.
-
+  const baseTargets = targettingMeat() ? copyTargetCount() : 0;
   const orEmpty = (diet: Diet<Note>) =>
     diet.expectedValue(MPA, "net") < 0 ? new Diet<Note>() : diet;
   const fullDietPlanner = (menu: MenuItem<Note>[]) =>
@@ -895,6 +895,7 @@ export function computeDiet(): {
     diet: () =>
       fullDietPlanner(
         balanceMenu(
+          baseTargets,
           menu().filter(
             (menuItem) =>
               !priceCaps[menuItem.item.name] ||
@@ -906,6 +907,7 @@ export function computeDiet(): {
     shotglass: () =>
       shotglassDietPlanner(
         balanceMenu(
+          baseTargets,
           menu().filter(
             (menuItem) =>
               itemType(menuItem.item) === "booze" && menuItem.size === 1,
@@ -916,6 +918,7 @@ export function computeDiet(): {
     pantsgiving: () =>
       pantsgivingDietPlanner(
         balanceMenu(
+          baseTargets,
           menu().filter(
             (menuItem) =>
               (itemType(menuItem.item) === "food" && menuItem.size === 1) ||
@@ -933,6 +936,7 @@ export function computeDiet(): {
     sweatpants: () =>
       sweatpantsDietPlanner(
         balanceMenu(
+          baseTargets,
           menu().filter(
             (menuItem) =>
               itemType(menuItem.item) === "booze" && menuItem.size <= 3,
