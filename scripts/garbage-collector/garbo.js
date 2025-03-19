@@ -29647,7 +29647,7 @@ function checkGithubVersion() {
       var releaseSHA = (_gitBranches$find = gitBranches.find(function(branchInfo) {
         return branchInfo.name === "release";
       })) === null || _gitBranches$find === void 0 || (_gitBranches$find = _gitBranches$find.commit) === null || _gitBranches$find === void 0 ? void 0 : _gitBranches$find.sha;
-      (0, import_kolmafia96.print)("Local Version: ".concat(localSHA, " (built from ").concat("main", "@").concat("f69d49758995a75dca734b14011254c964383aaa", ")"));
+      (0, import_kolmafia96.print)("Local Version: ".concat(localSHA, " (built from ").concat("main", "@").concat("1372092ab130bd6d0a140b94e6e9b84b39f2a6d6", ")"));
       if (releaseSHA === localSHA) {
         (0, import_kolmafia96.print)("Garbo is up to date!", HIGHLIGHT);
       } else if (releaseSHA === void 0) {
@@ -33391,7 +33391,7 @@ function getToyCupidBowFamiliars() {
       if (!have(familiar10)) continue;
       if (usedTcbFamiliars.has(familiar10)) continue;
       if (!(0, import_kolmafia107.familiarEquipment)(familiar10).tradeable) continue;
-      if (familiar10 === $familiar(_templateObject691 || (_templateObject691 = _taggedTemplateLiteral96(["Mini-Adventurer"]))) && !get("miniAdvClass")) {
+      if (familiar10 === $familiar(_templateObject691 || (_templateObject691 = _taggedTemplateLiteral96(["Mini-Adventurer"]))) && !get("miniAdvClass") && !get("choiceAdventure768")) {
         if (globalOptions.ascend) {
           propertyManager.setChoice(768, 4);
         } else continue;
@@ -36904,35 +36904,37 @@ function getBestMayamCombinations() {
     return sum(group, valueCombination);
   });
 }
-var mayamCalendarSummon = {
-  name: "Mayam Summons",
-  completed: function() {
-    return MayamCalendar_exports.remainingUses() === 0;
-  },
-  ready: function() {
-    return MayamCalendar_exports.have();
-  },
-  do: function() {
-    var startingFamiliar = (0, import_kolmafia120.myFamiliar)();
-    var _iterator = _createForOfIteratorHelper34(getBestMayamCombinations()), _step;
-    try {
-      for (_iterator.s(); !(_step = _iterator.n()).done; ) {
-        var combination = _step.value;
-        if (combination.includes("fur")) {
-          var bestFamiliar2 = maxBy(getExperienceFamiliars("free"), "expectedValue").familiar;
-          (0, import_kolmafia120.useFamiliar)(bestFamiliar2);
+function mayamCalendarSummon() {
+  return {
+    name: "Mayam Summons",
+    completed: function() {
+      return MayamCalendar_exports.remainingUses() === 0;
+    },
+    ready: function() {
+      return MayamCalendar_exports.have();
+    },
+    do: function() {
+      var startingFamiliar = (0, import_kolmafia120.myFamiliar)();
+      var _iterator = _createForOfIteratorHelper34(getBestMayamCombinations()), _step;
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done; ) {
+          var combination = _step.value;
+          if (combination.includes("fur")) {
+            var bestFamiliar2 = maxBy(getExperienceFamiliars("free"), "expectedValue").familiar;
+            (0, import_kolmafia120.useFamiliar)(bestFamiliar2);
+          }
+          MayamCalendar_exports.submit(combination);
         }
-        MayamCalendar_exports.submit(combination);
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
       }
-    } catch (err) {
-      _iterator.e(err);
-    } finally {
-      _iterator.f();
-    }
-    (0, import_kolmafia120.useFamiliar)(startingFamiliar);
-  },
-  spendsTurn: false
-};
+      (0, import_kolmafia120.useFamiliar)(startingFamiliar);
+    },
+    spendsTurn: false
+  };
+}
 
 // src/resources/autumnaton.ts
 var import_garbo_lib3 = __toESM(require_dist());
@@ -45456,7 +45458,11 @@ var BarfTurnQuest = {
     return !canContinue();
   }
 };
-var BarfTurnQuests = [TurnGenQuest, WandererQuest, NonBarfTurnQuest, BarfTurnQuest];
+var DailyExtrasQuest = {
+  name: "Daily Extras",
+  tasks: [mayamCalendarSummon()]
+};
+var BarfTurnQuests = [TurnGenQuest, DailyExtrasQuest, WandererQuest, NonBarfTurnQuest, BarfTurnQuest];
 
 // src/tasks/daily.ts
 var import_kolmafia138 = require("kolmafia");
@@ -47763,7 +47769,7 @@ var DailyItemTasks = [{
     return !AprilingBandHelmet_exports.canPlay($item(_templateObject1188 || (_templateObject1188 = _taggedTemplateLiteral132(["Apriling band piccolo"]))));
   },
   spendsTurn: false
-}, mayamCalendarSummon, {
+}, mayamCalendarSummon(), {
   name: "Devil Cheapest Candy",
   ready: function() {
     return have($item(_templateObject1198 || (_templateObject1198 = _taggedTemplateLiteral132(["candy egg deviler"]))));
@@ -48666,7 +48672,7 @@ function main() {
   if (globalOptions.prefs.valueOfAdventure && globalOptions.prefs.valueOfAdventure <= 3500) {
     throw "Your valueOfAdventure is set to ".concat(globalOptions.prefs.valueOfAdventure, ', which is too low for barf farming to be worthwhile. If you forgot to set it, use "set valueOfAdventure = XXXX" to set it to your marginal turn meat value.');
   }
-  if (!globalOptions.nobarf && globalOptions.prefs.valueOfAdventure && globalOptions.prefs.valueOfAdventure >= 1e4) {
+  if (!globalOptions.nobarf && globalOptions.prefs.valueOfAdventure && globalOptions.prefs.valueOfAdventure >= (globalOptions.nobarf ? 2e4 : 1e4)) {
     throw "Your valueOfAdventure is set to ".concat(globalOptions.prefs.valueOfAdventure, ", which is definitely incorrect. Please set it to your reliable marginal turn value.");
   }
   if ((0, import_kolmafia152.myInebriety)() > (0, import_kolmafia152.inebrietyLimit)() && (!have($item(_templateObject7131 || (_templateObject7131 = _taggedTemplateLiteral137(["Drunkula's wineglass"])))) || !(0, import_kolmafia152.canEquip)($item(_templateObject8108 || (_templateObject8108 = _taggedTemplateLiteral137(["Drunkula's wineglass"])))))) {
