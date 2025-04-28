@@ -83,6 +83,11 @@ You can use multiple options in conjunction, e.g. "garbo nobarf ascend"',
       help: "do beginning of the day setup, copy target monster, and various daily flags, but will terminate before normal Barf Mountain turns. May close NEP for the day.",
       default: false,
     }),
+    penguin: Args.flag({
+      setting: "",
+      help: "Avoid barf mountain, farm penguins",
+      default: false,
+    }),
     nodiet: Args.flag({
       setting: "",
       help: "skip eating and drinking anything as a part of its run (including pantsgiving).",

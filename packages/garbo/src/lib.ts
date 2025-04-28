@@ -72,6 +72,7 @@ import {
   $items,
   $location,
   $monster,
+  $monsters,
   $skill,
   $thralls,
   ActionSource,
@@ -164,7 +165,8 @@ export const songboomMeat = () =>
     : 0;
 
 // all tourists have a basemeat of 250
-export const baseMeat = () => 250 + songboomMeat();
+const pinguMeat = globalOptions.penguin ? 200 : 250;
+export const baseMeat = () => pinguMeat + songboomMeat();
 export const targetMeat = () => meatDrop(globalOptions.target) + songboomMeat();
 export const basePointerRingMeat = () => 500;
 export const targetPointerRingMeat = () => {
@@ -1149,4 +1151,12 @@ export function improvedStats(thing: Item | Effect): Stat[] {
 
 export function improvesAStat(thing: Item | Effect): boolean {
   return improvedStats(thing).length > 0;
+}
+
+const monsters = $monsters`Copperhead Club bartender, fan dancer, ninja dressed as a waiter, waiter dressed as a ninja`;
+
+export function getMonstersToBanish(): Monster[] {
+  const banishedMonsters = getBanishedMonsters();
+  const alreadyBanished = Array.from(banishedMonsters.values());
+  return monsters.filter((monster) => !alreadyBanished.includes(monster));
 }
