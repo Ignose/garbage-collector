@@ -22,7 +22,6 @@ import {
   myAscensions,
   myClass,
   myDaycount,
-  myFury,
   myHash,
   myHp,
   myInebriety,
@@ -51,7 +50,7 @@ import {
   $items,
   $location,
   $monster,
-  $phylum,
+  $monsters,
   $skill,
   $slot,
   BeachComb,
@@ -66,7 +65,6 @@ import {
   Pantogram,
   questStep,
   realmAvailable,
-  Snapper,
   SongBoom,
   SourceTerminal,
   sumNumbers,
@@ -79,7 +77,7 @@ import { globalOptions } from "../config";
 import { copyTargetCount } from "../target";
 import { meatFamiliar } from "../familiar";
 import { estimatedAttunementTentacles } from "../fights";
-import { baseMeat, getMonstersToBanish, HIGHLIGHT, safeRestore, targetMeat } from "../lib";
+import { baseMeat, getMonstersToBanish, HIGHLIGHT, penguinChooseBanish, safeRestore, targetMeat } from "../lib";
 import { garboValue } from "../garboValue";
 import { digitizedMonstersRemaining, estimatedGarboTurns } from "../turns";
 import { GarboTask } from "./engine";
@@ -904,37 +902,17 @@ const DailyTasks: GarboTask[] = [
         ? $familiar`Nanorhino`
         : get("commaFamiliar") === $familiar`Nanorhino`
           ? $familiar`Comma Chameleon`
-          : Snapper.getTrackedPhylum() === $phylum`Dude`
-            ? $familiar`Red-Nosed Snapper`
-            : undefined,
-      equip: $items`cursed monkey's paw, spring shoes, seal-clubbing club, Greatest American Pants`,
+          :  $familiar`Red-Nosed Snapper`,
+      equip: $items`cursed monkey's paw, spring shoes, seal-clubbing club`,
     },
     combat: new GarboStrategy(() => {
-      return Macro.externalIf(
-        myFury() < 5,
-        Macro.if_(
-          $monster`fan dancer`,
-          Macro.tryItem($item`shadow brick`).skill(
-            $skill`Lunging Thrust-Smack`,
-          ),
-        ),
-        Macro.if_($monster`fan dancer`, Macro.skill($skill`Batter Up!`)),
-      )
-        .if_(
-          $monster`Copperhead Club bartender`,
-          Macro.trySkill($skill`Monkey Slap`)
-            .trySkill($skill`Unleash Nanites`)
-            .tryItem($item`shadow brick`)
-            .runaway(),
+      const banish = penguinChooseBanish();
+      if(banish === null) throw "I have monsters to banish for pingu, but no banishes available!"
+      return Macro.if_(
+          $monsters`fan dancer, Copperhead Club bartender, ninja dressed as a waiter, waiter dressed as a ninja`,
+          banish,
         )
-        .if_(
-          $monster`ninja dressed as a waiter`,
-          Macro.skill($skill`Spring Kick`)
-            .trySkill($skill`Spring Away`)
-            .runaway(),
-        )
-        .if_($monster`waiter dressed as a ninja`, Macro.item($item`human musk`))
-        .if_($monster`Mob Penguin Capo`, Macro.runaway());
+        .if_($monster`Mob Penguin Capo`, Macro.trySkill($skill`Lunging Thrust-Smack`));
     }),
     post: (): void => {
       if (have($effect`Beaten Up`)) {
@@ -945,7 +923,7 @@ const DailyTasks: GarboTask[] = [
       }
     },
     spendsTurn: true,
-    limit: { tries: 15 },
+    limit: { tries: 30 },
   },
 ];
 

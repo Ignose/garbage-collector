@@ -29,9 +29,11 @@ import {
   Monster,
   mpCost,
   myBjornedFamiliar,
+  myClass,
   myEnthronedFamiliar,
   myFamiliar,
   myFullness,
+  myFury,
   myHp,
   myInebriety,
   myLocation,
@@ -66,6 +68,7 @@ import {
   weightAdjustment,
 } from "kolmafia";
 import {
+  $class,
   $effect,
   $familiar,
   $item,
@@ -1151,6 +1154,66 @@ export function improvedStats(thing: Item | Effect): Stat[] {
 
 export function improvesAStat(thing: Item | Effect): boolean {
   return improvedStats(thing).length > 0;
+}
+
+interface BanishMethod {
+  available: () => boolean;
+  macro: () => Macro;
+  name: string; // optional, for debugging
+}
+
+const banishMethods: BanishMethod[] = [
+  {
+    name: "Monkey Slap",
+    available: () => get("_monkeyPawWishesUsed") === 0 && have($item`cursed monkey's paw`),
+    macro: () => Macro.trySkill($skill`Monkey Slap`),
+  },
+  {
+    name: "Spring Kick",
+    available: () => have($item`spring shoes`),
+    macro: () => Macro.trySkill($skill`Spring Kick`).trySkill($skill`Spring Away`).runaway(),
+  },
+  {
+    name: "Batter Up!",
+    available: () => myClass() === $class`Seal Clubber` && have($skill`Batter Up!`) && myFury() >= 5,
+    macro: () => Macro.trySkill($skill`Batter Up!`),
+  },
+  {
+    name: "human musk",
+    available: () => true,
+    macro: () => Macro.tryItem($item`human musk`),
+  },
+  {
+    name: "Unleash Nanites",
+    available: () => have($effect`Nanobrawny`),
+    macro: () => Macro.trySkill($skill`Unleash Nanites`),
+  },
+]
+
+function banishMethodInUse(method: BanishMethod): boolean {
+  const banished = getBanishedMonsters();
+
+  for (const [sourceItemOrSkill, banishedMonster] of banished.entries()) {
+    if (
+      monsters.includes(banishedMonster) && // our critical list
+      (
+        (method.name === sourceItemOrSkill.name) || // Match by name (item or skill)
+        false // you can extend this if necessary
+      )
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function penguinChooseBanish(): Macro | null {
+  for (const method of banishMethods) {
+    if (method.available() && !banishMethodInUse(method)) {
+      return method.macro();
+    }
+  }
+  return null;
 }
 
 const monsters = $monsters`Copperhead Club bartender, fan dancer, ninja dressed as a waiter, waiter dressed as a ninja`;
