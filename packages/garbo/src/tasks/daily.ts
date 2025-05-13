@@ -912,7 +912,7 @@ const DailyTasks: GarboTask[] = [
           $monsters`fan dancer, Copperhead Club bartender, ninja dressed as a waiter, waiter dressed as a ninja`,
           banish,
         )
-        .if_($monster`Mob Penguin Capo`, Macro.trySkill($skill`Lunging Thrust-Smack`));
+        .trySkill($skill`Lunging Thrust-Smack`).repeat();
     }),
     post: (): void => {
       if (have($effect`Beaten Up`)) {

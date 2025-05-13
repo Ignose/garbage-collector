@@ -16,7 +16,6 @@ import {
   maximize,
   myAdventures,
   myAscensions,
-  myFury,
   myInebriety,
   myLevel,
   myLightning,
@@ -37,11 +36,13 @@ import {
   $items,
   $location,
   $monster,
+  $monsters,
   $phylum,
   $skill,
   AprilingBandHelmet,
   ChestMimic,
   clamp,
+  CommaChameleon,
   Counter,
   CrepeParachute,
   Delayed,
@@ -76,6 +77,7 @@ import {
   howManySausagesCouldIEat,
   kramcoGuaranteed,
   MEAT_TARGET_MULTIPLIER,
+  penguinChooseBanish,
   romanticMonsterImpossible,
   sober,
   targetingMeat,
@@ -1120,7 +1122,7 @@ export const BarfTurnQuest: Quest<GarboTask> = {
     },
     {
       name: "Barf",
-      ready: () => !(globalOptions.penguin),
+      ready: () => !globalOptions.penguin,
       completed: () => myAdventures() === 0,
       outfit: () => {
         const lubing =
@@ -1162,55 +1164,38 @@ export const BarfTurnQuest: Quest<GarboTask> = {
       },
       completed: () => myAdventures() === 0,
       outfit: () => {
+        const robortenderFamiliar = have($familiar`Robortender`)
+          ? $familiar`Robortender`
+          : have($familiar`Comma Chameleon`)
+            ? $familiar`Comma Chameleon`
+            : null;
         const outfits = barfOutfit({
-          familiar: $familiar`Red-Nosed Snapper`,
+          familiar:
+            garboValue($item`fish head`) / 5 > 50_000 / 11 &&
+            robortenderFamiliar
+              ? robortenderFamiliar
+              : $familiar`Red-Nosed Snapper`,
           equip: [],
         });
-        if (
-          have($item`Everfull Dart Holster`) &&
-          !have($effect`Everything Looks Red`)
-        ) {
-          outfits.equip($item`Everfull Dart Holster`);
+        if (outfits.familiar === $familiar`Comma Chameleon`) {
+          acquire(1, $item`toggle switch (Bartend)`, 5_000);
+          CommaChameleon.transform($familiar`Robortender`);
         }
-        if (
-          getMonstersToBanish().includes($monster`ninja dressed as a waiter`)
-        ) {
+        if (getMonstersToBanish().length > 0) {
           outfits.equip($item`spring shoes`);
         }
         return outfits;
       },
       do: $location`The Copperhead Club`,
       combat: new GarboStrategy(() => {
-        return Macro.externalIf(
-          myFury() < 5,
-          Macro.if_(
-            $monster`fan dancer`,
-            Macro.tryItem($item`shadow brick`).trySkill(
-              $skill`Lunging Thrust-Smack`,
-            ),
-          ),
-          Macro.if_($monster`fan dancer`, Macro.trySkill($skill`Batter Up!`)),
-        )
-          .if_(
-            $monster`Copperhead Club bartender`,
-            Macro.trySkill($skill`Monkey Slap`)
-              .trySkill($skill`Unleash Nanites`)
-              .tryItem($item`shadow brick`)
-              .runaway(),
-          )
-          .if_(
-            $monster`ninja dressed as a waiter`,
-            Macro.skill($skill`Spring Kick`)
-              .trySkill($skill`Spring Away`)
-              .runaway(),
-          )
-          .if_(
-            $monster`waiter dressed as a ninja`,
-            Macro.tryItem($item`human musk`),
-          )
-          .if_($monster`Mob Penguin Capo`, Macro.meatKill())
-          .if_($monster`sausage goblin`, Macro.meatKill())
-          .meatKill();
+        const banish = penguinChooseBanish();
+        if (banish === null && getMonstersToBanish().length > 0) {
+          throw "I have monsters to banish for pingu, but no banishes available!";
+        }
+        return Macro.if_(
+          $monsters`fan dancer, Copperhead Club bartender, ninja dressed as a waiter, waiter dressed as a ninja`,
+          banish ? banish : Macro.tryItem($item`human musk`),
+        ).meatKill();
       }),
       post: () => {
         trackMarginalMpa();
