@@ -16,6 +16,7 @@ import {
   maximize,
   myAdventures,
   myAscensions,
+  myFamiliar,
   myInebriety,
   myLevel,
   myLightning,
@@ -1199,6 +1200,9 @@ export const BarfTurnQuest: Quest<GarboTask> = {
       }),
       post: () => {
         trackMarginalMpa();
+        if(myFamiliar() === $familiar`Comma Chameleon`) {
+          visitUrl("charpane.php");
+        }
       },
       spendsTurn: true,
     },
