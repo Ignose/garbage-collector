@@ -81,11 +81,9 @@ import { globalOptions } from "../config";
 import { wanderer } from "../garboWanderer";
 import {
   getBestLuckyAdventure,
-  getMonstersToBanish,
   howManySausagesCouldIEat,
   kramcoGuaranteed,
   MEAT_TARGET_MULTIPLIER,
-  penguinChooseBanish,
   romanticMonsterImpossible,
   sober,
   targetingMeat,
@@ -120,7 +118,7 @@ import {
   willYachtzee,
 } from "../resources";
 import { acquire } from "../acquire";
-import { shouldMakeEgg } from "../resources";
+import { getMonstersToBanish, penguinChooseBanish, shouldMakeEgg } from "../resources";
 import { lavaDogsAccessible, lavaDogsComplete } from "../resources/doghouse";
 import { hotTubAvailable } from "../resources/clanVIP";
 import { meatMood } from "../mood";

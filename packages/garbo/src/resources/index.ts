@@ -19,3 +19,4 @@ export * from "./bloodCubicZirconia";
 export * from "./shrunkenHead";
 export * from "./darts";
 export * from "./mobiusRing";
+export * from "./pingu";
