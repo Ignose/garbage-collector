@@ -4,7 +4,9 @@ import {
   $item,
   $items,
   $location,
+  $monster,
   $skill,
+  CombatLoversLocket,
   CrystalBall,
   examine,
   get,
@@ -78,15 +80,16 @@ export const SetupTargetCopyQuest: Quest<GarboTask> = {
       outfit: () =>
         freeFightOutfit({
           // eslint-disable-next-line libram/verify-constants
-          equip: $items`shrunken head, Peridot of Peril`
+          equip: $items`shrunken head, Peridot of Peril`,
+          modifier: "+ML"
         }),
       prepare: () => {
         const monster = shrunkenHeadMonster();
         propertyManager.setChoice(1557, `1&bandersnatch=${monster.id}`);
       },
       completed: () => get("shrunkenHeadZombieAbilities").includes("Meat"),
-      do: shrunkenHeadLocation(),
-      spendsTurn: true,
+      do: () => CombatLoversLocket.reminisce($monster`Witchess Rook`),
+      spendsTurn: false,
       // eslint-disable-next-line libram/verify-constants
       combat: new GarboStrategy(() => Macro.trySkill($skill`Prepare to reanimate your foe`).kill()),
     },
