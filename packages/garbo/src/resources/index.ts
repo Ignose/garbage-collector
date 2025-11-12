@@ -16,5 +16,6 @@ export * from "./yachtzee";
 export * from "./everfullDarts";
 export * from "./beret";
 export * from "./bloodCubicZirconia";
+export * from "./shrunkenHead";
 export * from "./darts";
 export * from "./mobiusRing";

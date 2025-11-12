@@ -4,6 +4,7 @@ import {
   $item,
   $items,
   $location,
+  $skill,
   CrystalBall,
   examine,
   get,
@@ -15,7 +16,11 @@ import { GarboTask } from "./engine";
 import { Macro } from "../combat";
 import { GarboStrategy } from "../combatStrategy";
 import { getChangeLastAdvLocationMethod } from "../target/lib";
-import { doingGregFight } from "../resources";
+import {
+  doingGregFight,
+  shrunkenHeadLocation,
+  shrunkenHeadMonster,
+} from "../resources";
 import { freeFightOutfit } from "../outfit";
 import {
   canFaxbot,
@@ -23,6 +28,7 @@ import {
   faxbot,
   getClanLounge,
   inebrietyLimit,
+  Location,
   mallPrice,
   myInebriety,
   use,
@@ -30,6 +36,7 @@ import {
 } from "kolmafia";
 import { globalOptions } from "../config";
 import { amuletCoinValue } from "../familiar/lib";
+import { propertyManager } from "../lib";
 
 export const SetupTargetCopyQuest: Quest<GarboTask> = {
   name: "SetupTargetCopy",
@@ -64,6 +71,24 @@ export const SetupTargetCopyQuest: Quest<GarboTask> = {
       post: () => set("_lastDailyDungeonEncounter", get("lastEncounter")),
       spendsTurn: true,
       combat: new GarboStrategy(() => Macro.kill()),
+    },
+    {
+      name: "Setup Shrunken Head",
+      ready: () => shrunkenHeadLocation() !== Location.none,
+      outfit: () =>
+        freeFightOutfit({
+          // eslint-disable-next-line libram/verify-constants
+          equip: $items`shrunken head, Peridot of Peril`
+        }),
+      prepare: () => {
+        const monster = shrunkenHeadMonster();
+        propertyManager.setChoice(1557, `1&bandersnatch=${monster.id}`);
+      },
+      completed: () => get("shrunkenHeadZombieAbilities").includes("Meat"),
+      do: shrunkenHeadLocation(),
+      spendsTurn: true,
+      // eslint-disable-next-line libram/verify-constants
+      combat: new GarboStrategy(() => Macro.trySkill($skill`Prepare to reanimate your foe`).kill()),
     },
     {
       name: "Fold Spooky Putty sheet",
