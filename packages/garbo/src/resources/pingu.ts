@@ -1,4 +1,4 @@
-import { Monster, Item, Familiar, myClass, myFury } from "kolmafia";
+import { Familiar, Item, Monster, myClass, myFury } from "kolmafia";
 import { $class, $effect, $familiar, $item, $monsters, $skill, get, getBanishedMonsters, have, Macro } from "libram";
 
 const monsters = $monsters`Copperhead Club bartender, fan dancer, ninja dressed as a waiter, waiter dressed as a ninja`;
