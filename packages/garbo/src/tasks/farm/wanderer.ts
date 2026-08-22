@@ -14,6 +14,8 @@ import {
   totalTurnsPlayed,
   use,
   visitUrl,
+  weaponHands,
+  weaponType,
 } from "kolmafia";
 import {
   $effect,
@@ -23,6 +25,7 @@ import {
   $location,
   $monster,
   $skill,
+  $slot,
   ChestMimic,
   Counter,
   CrepeParachute,
@@ -114,7 +117,21 @@ function createWandererOutfit(
   }
   if (needPeridot) sourceOutfit.equip($item`Peridot of Peril`);
   if (needBCZ) sourceOutfit.equip($item`blood cubic zirconia`);
-  if (needMonodent) sourceOutfit.equip($item`Monodent of the Sea`);
+  // KoL only lets you dual-wield two weapons of the same type and
+  // Outfit.equipUsingDualWield() does not check that, so place the Monodent only
+  // where it is certain to be equippable. Feesh is optional.
+  if (needMonodent) {
+    const monodent = $item`Monodent of the Sea`;
+    const plannedWeapon = sourceOutfit.equips.get($slot`weapon`);
+    if (!plannedWeapon) {
+      sourceOutfit.equip(monodent, $slot`weapon`);
+    } else if (
+      weaponHands(plannedWeapon) === 1 &&
+      weaponType(plannedWeapon) === weaponType(monodent)
+    ) {
+      sourceOutfit.equip(monodent, $slot`off-hand`);
+    }
+  }
 
   return freeFightOutfit(
     sourceOutfit.spec(),
