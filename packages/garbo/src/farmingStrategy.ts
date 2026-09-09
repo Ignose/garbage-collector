@@ -10,6 +10,7 @@ import {
   myHash,
   print,
   retrieveItem,
+  useFamiliar,
   visitUrl,
 } from "kolmafia";
 import { GarboStrategy } from "./combatStrategy";
@@ -231,6 +232,7 @@ const BARF_MOUNTAIN: FarmingStrategyOptions = {
 const THE_CORAL_CORRAL: FarmingStrategyOptions = {
   prepare: () => {
     if (!(get("commaFamiliar") === $familiar`Robortender`)) {
+      useFamiliar($familiar`Comma Chameleon`);
       CommaChameleon.transform($familiar`Robortender`);
       set("_CommaTurns", 0);
       // Bloody Nora
