@@ -287,8 +287,9 @@ const THE_CORAL_CORRAL: FarmingStrategyOptions = {
 
   post: () => {
     const commaTurns = get("_CommaTurns", 0);
-    set("_CommaTurns", commaTurns + 1);
-    if (commaTurns >= 40) {
+    visitUrl("charpane.php");
+    if (!(get("commaFamiliar") === $familiar`Robortender`)) {
+      print(`Robortender lasted ${commaTurns} Turns! Making a new one...`);
       CommaChameleon.transform($familiar`Robortender`);
       set("_CommaTurns", 0);
     }
