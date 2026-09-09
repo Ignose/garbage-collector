@@ -7,7 +7,10 @@ import {
   Location,
   mallPrice,
   Monster,
+  myHash,
   print,
+  retrieveItem,
+  visitUrl,
 } from "kolmafia";
 import { GarboStrategy } from "./combatStrategy";
 import {
@@ -21,11 +24,13 @@ import {
   $monsters,
   $skill,
   adventureTargetToWeightedMap,
+  CommaChameleon,
   Delayed,
   get,
   have,
   NumericModifier,
   PulledTaffy,
+  set,
   sum,
   undelay,
 } from "libram";
@@ -57,6 +62,7 @@ const touristFamilyRatio = touristFamilies / barfTourists;
 // then estimate the expected number of turns required to hit a counter of >= 30
 
 interface FarmingStrategyOptions {
+  prepare?: () => void;
   stasisRounds: number;
   asdonEffect: Effect;
   ensureBarfAccess: boolean;
@@ -84,6 +90,7 @@ const DEFAULT_OPTIONS: Readonly<{
   bonusModifiers: [] as NumericModifier[],
   banishMonsters: [] as Monster[],
   ncTurns: Infinity,
+  prepare: () => {},
   post: () => {},
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   outfit: (_context: FarmingContext): OutfitSpec => ({}),
@@ -222,6 +229,22 @@ const BARF_MOUNTAIN: FarmingStrategyOptions = {
 };
 
 const THE_CORAL_CORRAL: FarmingStrategyOptions = {
+  prepare: () => {
+    if (!(get("commaFamiliar") === $familiar`Robortender`)) {
+      CommaChameleon.transform($familiar`Robortender`);
+      set("_CommaTurns", 0);
+      // Bloody Nora
+      retrieveItem($item`Bloody Nora`);
+      visitUrl(
+        `inventory.php?pwd=${myHash()}&action=robooze&which=99&whichitem=9388`,
+      );
+      // Drive By Shooting
+      retrieveItem($item`drive-by shooting`);
+      visitUrl(
+        `inventory.php?pwd=${myHash()}&action=robooze&which=99&whichitem=9396`,
+      );
+    }
+  },
   stasisRounds: 5,
   asdonEffect: $effect`Driving Waterproofly`,
   ensureBarfAccess: false,
@@ -238,7 +261,9 @@ const THE_CORAL_CORRAL: FarmingStrategyOptions = {
       print(`Planning to banish equipping ${banishItem?.name}`);
     }
 
-    return banishItem ? { equip: [banishItem] } : {};
+    return banishItem
+      ? { equip: [banishItem], familiar: $familiar`Comma Chameleon` }
+      : { familiar: $familiar`Comma Chameleon` };
   },
 
   combat: new GarboStrategy(({ banish }) => {
@@ -257,6 +282,15 @@ const THE_CORAL_CORRAL: FarmingStrategyOptions = {
       ? Macro.tryItem($item`pulled red taffy`).meatKill()
       : Macro.meatKill();
   }),
+
+  post: () => {
+    const commaTurns = get("_CommaTurns", 0);
+    set("_CommaTurns", commaTurns + 1);
+    if (commaTurns >= 40) {
+      CommaChameleon.transform($familiar`Robortender`);
+      set("_CommaTurns", 0);
+    }
+  },
 };
 
 function currentStrategy(): FarmingStrategyOptions {
