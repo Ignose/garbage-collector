@@ -263,9 +263,13 @@ const THE_CORAL_CORRAL: FarmingStrategyOptions = {
       print(`Planning to banish equipping ${banishItem?.name}`);
     }
 
-    return banishItem
-      ? { equip: [banishItem], familiar: $familiar`Comma Chameleon` }
-      : { familiar: $familiar`Comma Chameleon` };
+    if (have($effect`Driving Waterproofly`)) {
+      return banishItem
+        ? { equip: [banishItem], familiar: $familiar`Comma Chameleon` }
+        : { familiar: $familiar`Comma Chameleon` };
+    }
+
+    return banishItem ? { equip: [banishItem] } : {};
   },
 
   combat: new GarboStrategy(({ banish }) => {
@@ -286,13 +290,25 @@ const THE_CORAL_CORRAL: FarmingStrategyOptions = {
   }),
 
   post: () => {
+    useFamiliar($familiar`Comma Chameleon`);
     const commaTurns = get("_CommaTurns", 0);
+    set("_CommaTurns", commaTurns + 1);
     visitUrl("charpane.php");
     if (!(get("commaFamiliar") === $familiar`Robortender`)) {
       print(`Robortender lasted ${commaTurns} Turns! Making a new one...`);
       CommaChameleon.transform($familiar`Robortender`);
       set("_CommaTurns", 0);
     }
+    const roboDrinks = $items`Bloody Nora, drive-by shooting, Simepore slime`;
+
+    roboDrinks.forEach((d) => {
+      if (!get("_roboDrinks").includes(d.name)) {
+        retrieveItem(d);
+        visitUrl(
+          `inventory.php?pwd=${myHash()}&action=robooze&which=99&whichitem=${d.id}`,
+        );
+      }
+    });
   },
 };
 
